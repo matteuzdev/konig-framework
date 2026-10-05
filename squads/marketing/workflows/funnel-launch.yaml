@@ -1,0 +1,22 @@
+name: "funnel-launch"
+description: "Workflow de lançamento de funil de aquisição de clientes e vendas diretas"
+version: "2.0.0"
+
+steps:
+  - id: step_01_strategy
+    task: "define-market-strategy"
+    agent: "cmo"
+    gate: "marketing-strategy-checklist"
+    depends_on: []
+
+  - id: step_02_copywriting
+    task: "write-sales-copy"
+    agent: "copywriter"
+    gate: "copywriting-checklist"
+    depends_on: ["step_01_strategy"]
+
+  - id: step_03_traffic
+    task: "optimize-traffic-cro"
+    agent: "traffic"
+    gate: "traffic-cro-checklist"
+    depends_on: ["step_02_copywriting"]

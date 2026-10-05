@@ -1,0 +1,15 @@
+squad:
+  id: "marketing"
+  name: "Growth, Marketing & Paid Acquisition"
+  version: "2.0.0"
+  description: "Squad de marketing de resposta direta, estratégias de crescimento e escala de tráfego."
+
+directories:
+  agents: "./agents"
+  tasks: "./tasks"
+  checklists: "./checklists"
+  templates: "./templates"
+  workflows: "./workflows"
+
+active_workflows:
+  - "funnel-launch"

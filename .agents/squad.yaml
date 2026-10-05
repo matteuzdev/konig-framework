@@ -1,0 +1,21 @@
+squad:
+  id: "engineering"
+  name: "Software Engineering & Enterprise Delivery"
+  version: "2.0.0"
+  description: "Squad de engenharia de software de alta performance com arquitetura, UI/UX Pro-Max, desenvolvimento e QA."
+
+directories:
+  agents: "./agents"
+  tasks: "./tasks"
+  checklists: "./checklists"
+  templates: "./templates"
+  workflows: "./workflows"
+
+active_workflows:
+  - "greenfield-delivery"
+
+default_rules:
+  require_gates: true
+  auto_rework_on_gate_rejection: true
+  max_rework_attempts: 3
+  enforce_konig_signature: true

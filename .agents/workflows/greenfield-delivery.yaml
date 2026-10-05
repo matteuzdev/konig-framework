@@ -1,0 +1,38 @@
+name: "greenfield-delivery"
+description: "Fluxo de ponta a ponta para construção de software do zero (Inspirado no KONIG greenfield-fullstack-workflow)"
+version: "2.0.0"
+
+steps:
+  - id: step_01_prd
+    task: "create-prd"
+    agent: "pm"
+    template: "prd-template.md"
+    gate: "prd-gate-checklist"
+    depends_on: []
+
+  - id: step_02_architecture
+    task: "design-architecture"
+    agent: "architect"
+    template: "architecture-template.md"
+    gate: "architecture-gate-checklist"
+    depends_on: ["step_01_prd"]
+
+  - id: step_03_ui_ux
+    task: "design-ui-ux-pro-max"
+    agent: "ui_ux_designer"
+    template: "ui-ux-tokens-template.md"
+    gate: "ui-ux-pro-max-gate-checklist"
+    depends_on: ["step_01_prd"]
+
+  - id: step_04_implementation
+    task: "implement-fullstack-core"
+    agent: "engineer"
+    gate: "code-quality-gate-checklist"
+    depends_on: ["step_02_architecture", "step_03_ui_ux"]
+
+  - id: step_05_qa
+    task: "run-qa-homologation"
+    agent: "qa_engineer"
+    template: "qa-report-template.md"
+    gate: "qa-gate-checklist"
+    depends_on: ["step_04_implementation"]

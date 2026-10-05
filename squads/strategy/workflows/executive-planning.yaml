@@ -1,0 +1,16 @@
+name: "executive-planning"
+description: "Workflow executivo de alinhamento estratégico corporativo e blindagem de unit economics"
+version: "2.0.0"
+
+steps:
+  - id: step_01_thesis
+    task: "formulate-corporate-strategy"
+    agent: "ceo_advisor"
+    gate: "corporate-strategy-checklist"
+    depends_on: []
+
+  - id: step_02_economics
+    task: "model-unit-economics"
+    agent: "cfo"
+    gate: "financial-economics-checklist"
+    depends_on: ["step_01_thesis"]

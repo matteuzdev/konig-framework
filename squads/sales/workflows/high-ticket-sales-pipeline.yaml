@@ -1,0 +1,22 @@
+name: "high-ticket-sales-pipeline"
+description: "Pipeline completo de prospecção, qualificação, fechamento e onboarding de clientes de alto ticket"
+version: "2.0.0"
+
+steps:
+  - id: step_01_prospecting
+    task: "qualify-outbound-leads"
+    agent: "sdr"
+    gate: "sdr-qualification-checklist"
+    depends_on: []
+
+  - id: step_02_closing
+    task: "close-deal-negotiation"
+    agent: "closer"
+    gate: "deal-closing-checklist"
+    depends_on: ["step_01_prospecting"]
+
+  - id: step_03_onboarding
+    task: "onboard-and-retain"
+    agent: "cs_manager"
+    gate: "cs-retention-checklist"
+    depends_on: ["step_02_closing"]

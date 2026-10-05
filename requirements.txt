@@ -1,0 +1,21 @@
+# ==============================================================================
+# KONIG Framework — Dependencies
+# Engine de Orquestração Autônoma de Squads de IA de Alta Performance
+# ==============================================================================
+
+# Core & Data Models
+pydantic>=2.5.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.1
+
+# Terminal UI & Interactive Experience
+rich>=13.7.0
+click>=8.1.7
+
+# LLM Providers & Routing
+litellm>=1.20.0
+httpx>=0.26.0
+
+# Optional API & Webhooks Engine
+fastapi>=0.109.0
+uvicorn>=0.27.0

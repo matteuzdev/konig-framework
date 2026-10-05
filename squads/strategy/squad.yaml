@@ -1,0 +1,15 @@
+squad:
+  id: "strategy"
+  name: "Corporate Strategy, Governance & Financial Stewardship"
+  version: "2.0.0"
+  description: "Squad de direção executiva, tese de mercado, unit economics e blindagem de capital."
+
+directories:
+  agents: "./agents"
+  tasks: "./tasks"
+  checklists: "./checklists"
+  templates: "./templates"
+  workflows: "./workflows"
+
+active_workflows:
+  - "executive-planning"

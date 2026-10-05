@@ -1,0 +1,15 @@
+squad:
+  id: "sales"
+  name: "High-Ticket Enterprise Sales & Client Success"
+  version: "2.0.0"
+  description: "Squad de aquisição outbound, negociação de contratos enterprise e retenção no dia 1."
+
+directories:
+  agents: "./agents"
+  tasks: "./tasks"
+  checklists: "./checklists"
+  templates: "./templates"
+  workflows: "./workflows"
+
+active_workflows:
+  - "high-ticket-sales-pipeline"

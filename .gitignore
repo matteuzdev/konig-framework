@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.env.local
+.venv/
+venv/
+ENV/
+env/
+
+# Scratch / Sandbox temporary test runs
+scratch/sandbox/*
+!scratch/sandbox/.gitkeep
+scratch/*.py
+!scratch/.gitkeep
+
+# IDEs & OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Test & Coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build & Distribution
+dist/
+build/
+*.egg-info/
