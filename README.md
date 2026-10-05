@@ -50,7 +50,7 @@ O KONIG conta com um assistente de instalação visual, didático e automatizado
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/hiant/konig-framework.git
+git clone https://github.com/matteuzdev/konig-framework.git
 cd konig-framework
 
 # 2. Execute o assistente de instalação interativo

@@ -269,7 +269,7 @@ def print_completion_guide() -> None:
      {Style.BOLD}python cli.py benchmark{Style.RESET}
 
 {Style.DIM}Documentação completa: ARCHITECTURE.md
-Repositório: https://github.com/hiant/konig-framework{Style.RESET}
+Repositório: https://github.com/matteuzdev/konig-framework{Style.RESET}
 ================================================================================
 """
     print(guide)
