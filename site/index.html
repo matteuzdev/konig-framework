@@ -7,10 +7,13 @@
   <meta name="description" content="Motor industrial de orquestração autônoma de IA com execução determinística em waves, isolamento em sandbox AST e suporte omnichannel nativo a WhatsApp e Telegram.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light">
+
+  <!-- Glow Background Canvas / Ambience -->
+  <div class="ambient-glow" aria-hidden="true"></div>
 
   <!-- Header Institucional -->
   <header class="site-header">
@@ -20,14 +23,15 @@
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
         </svg>
         <span class="brand-name">KONIG</span>
-        <span class="brand-version">v2.0.0</span>
+        <span class="brand-version">v2.0 • ONIX</span>
       </a>
 
       <nav class="primary-nav">
-        <a href="#omnichannel" class="nav-link">Omnichannel</a>
+        <a href="#simulator" class="nav-link">Simulador de Waves</a>
+        <a href="#whatsapp-demo" class="nav-link">WhatsApp Live</a>
+        <a href="#telegram-hub" class="nav-link">Telegram Mobile</a>
         <a href="#arquitetura" class="nav-link">Arquitetura</a>
-        <a href="#comparativo" class="nav-link">Benchmark</a>
-        <a href="#codigo" class="nav-link">Documentação</a>
+        <a href="#benchmark" class="nav-link">Benchmark</a>
       </nav>
 
       <div class="header-actions">
@@ -55,25 +59,25 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Hero Section Interativa -->
   <section class="hero-section">
     <div class="content-wrapper">
-      <div class="status-pill">
-        <span class="status-indicator"></span>
-        <span class="status-text">ONIX Master Orchestrator • Motor de Produção Homologado</span>
+      <div class="status-pill animate-fade-in">
+        <span class="status-indicator live-pulse"></span>
+        <span class="status-text">ONIX Master Orchestrator • KRONOS Wave Engine v2.0</span>
       </div>
 
-      <h1 class="hero-headline">
+      <h1 class="hero-headline animate-slide-up">
         Orquestração Autônoma Industrial de Agentes de IA.
       </h1>
 
-      <p class="hero-description">
-        Substitua prompts soltos e loops imprevisíveis por governança determinística orientada a DAGs. 
-        Implemente agentes comerciais para fechamento em WhatsApp corporativo e comande squads de engenharia remotos via tópicos de fórum no Telegram.
+      <p class="hero-description animate-slide-up delay-1">
+        Governança determinística baseada em DAGs com execução em ondas paralelas.
+        Implante agentes de alta conversão no WhatsApp de clientes e comande squads completos de engenharia direto do Telegram.
       </p>
 
-      <div class="hero-cta-group">
-        <div class="cli-command-container">
+      <div class="hero-cta-group animate-slide-up delay-2">
+        <div class="cli-command-container spotlight-card">
           <span class="cli-prompt">$</span>
           <code class="cli-code" id="cliCommand">pip install konig-framework && konig run .agents</code>
           <button class="btn-copy-cli" id="copyCliBtn" onclick="copyCli()" aria-label="Copiar comando">
@@ -86,134 +90,310 @@
         </div>
 
         <div class="hero-button-row">
-          <a href="#quickstart" class="btn-primary">
-            <span>Começar em 1 Minuto</span>
+          <a href="#simulator" class="btn-primary">
+            <span>Explorar Simulador de Waves</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </a>
-          <a href="https://github.com/matteuzdev/konig-framework/blob/main/ARCHITECTURE.md" target="_blank" class="btn-secondary">
-            <span>Especificação da Arquitetura</span>
+          <a href="#whatsapp-demo" class="btn-secondary">
+            <span>Ver WhatsApp em Ação</span>
           </a>
         </div>
       </div>
 
-      <!-- Métricas Industriais -->
+      <!-- Métricas com Contadores Vivos -->
       <div class="spec-strip">
         <div class="spec-item">
-          <div class="spec-value">0 s</div>
-          <div class="spec-label">Execução não isolada (AST Sandbox)</div>
+          <div class="spec-value" data-target="0">0 s</div>
+          <div class="spec-label">Execução insegura (AST Sandbox)</div>
         </div>
         <div class="spec-divider"></div>
         <div class="spec-item">
-          <div class="spec-value">90%</div>
+          <div class="spec-value counter" data-target="90">0%</div>
           <div class="spec-label">Redução de contexto (SYNAPSE)</div>
         </div>
         <div class="spec-divider"></div>
         <div class="spec-item">
-          <div class="spec-value">100%</div>
-          <div class="spec-label">Resolução paralela em waves (DAG)</div>
+          <div class="spec-value counter" data-target="100">0%</div>
+          <div class="spec-label">Paralelismo em Waves (KRONOS)</div>
         </div>
         <div class="spec-divider"></div>
         <div class="spec-item">
           <div class="spec-value">Multi-IDE</div>
-          <div class="spec-label">Sincronização universal nativa</div>
+          <div class="spec-label">Antigravity • Cursor • Claude • Codex</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Bento Grid: Os 4 Pilares Centrais -->
-  <section id="omnichannel" class="bento-section">
+  <!-- Componente Interativo 1: Simulador do ONIX Wave Engine (KRONOS) -->
+  <section id="simulator" class="simulator-section">
     <div class="content-wrapper">
       <div class="section-title-block">
-        <span class="sub-label">Infraestrutura Operacional</span>
-        <h2>Engenharia de Produção & Omnichannel Real</h2>
-        <p>Projetado para operar em cenários corporativos onde disponibilidade, isolamento de segurança e mobilidade são requisitos mandatórios.</p>
+        <span class="sub-label">Simulador Interativo em Tempo Real</span>
+        <h2>Motor de Resolução de DAGs em Waves</h2>
+        <p>Veja como o ONIX orquestra tarefas sem loops caóticos: resolução topológica em ondas paralelas com barreira de sincronização.</p>
       </div>
 
-      <div class="bento-grid">
+      <div class="dag-simulator-card spotlight-card">
+        <div class="sim-toolbar">
+          <div class="sim-status-box">
+            <span class="sim-led" id="simLed"></span>
+            <span class="sim-state-text" id="simStateText">Pronto para disparar</span>
+          </div>
 
-        <!-- Card 1: WhatsApp Commercial Engine -->
-        <div class="bento-card bento-wide">
-          <div class="bento-header">
-            <div class="card-icon-wrapper">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          <div class="sim-controls">
+            <button class="btn-sim-run" id="btnRunSim" onclick="runDagSimulation()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-            </div>
-            <div>
-              <h3>WhatsApp Enterprise Agent Gateway</h3>
-              <p>Implantação de agentes comerciais de alta conversão para empresas e negócios locais com memória contextual persistente.</p>
-            </div>
-          </div>
-
-          <div class="bento-body">
-            <div class="terminal-preview-frame">
-              <div class="frame-bar">
-                <span class="bar-tag">Sessão WhatsApp #WA-9042</span>
-                <span class="bar-status online">Conexão Ativa</span>
-              </div>
-              <div class="chat-stream">
-                <div class="stream-bubble in">
-                  <span class="bubble-sender">Lead Corporativo (Diretoria Clínica)</span>
-                  <p>Precisamos automatizar o agendamento de consultas cirúrgicas com confirmação de pagamento e triagem pré-anestésica. O sistema suporta integração com prontuário?</p>
-                  <span class="bubble-meta">10:42 • Recebido</span>
-                </div>
-                <div class="stream-bubble out">
-                  <span class="bubble-sender">KONIG Autonomous Commercial Agent</span>
-                  <p>Sim. O módulo de triagem valida pré-requisitos clínicos através de checklist determinístico e executa chamadas webhook para prontuários via API REST com chave bearer segura. Posso gerar o contrato de implantação técnica para sua equipe homologar?</p>
-                  <span class="bubble-meta">10:42 • Respondido em 420ms</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bento-footer">
-            <div class="feature-tag">Handoff Humano Automático</div>
-            <div class="feature-tag">Webhooks REST Seguros</div>
-            <div class="feature-tag">Isolamento de Sessão por Telefone</div>
+              <span>Disparar Ciclo de Execução</span>
+            </button>
+            <button class="btn-sim-reset" onclick="resetDagSimulation()">Reset</button>
           </div>
         </div>
 
-        <!-- Card 2: Telegram Mobile Command -->
-        <div class="bento-card">
-          <div class="bento-header">
-            <div class="card-icon-wrapper">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <!-- Grafo Visual de Waves com SVG Animado -->
+        <div class="dag-graph-canvas">
+          <svg class="dag-flow-svg" viewBox="0 0 900 120" preserveAspectRatio="none">
+            <line x1="160" y1="60" x2="310" y2="35" class="dag-link-line" id="link-1-2a" />
+            <line x1="160" y1="60" x2="310" y2="85" class="dag-link-line" id="link-1-2b" />
+            <line x1="490" y1="35" x2="620" y2="60" class="dag-link-line" id="link-2a-3" />
+            <line x1="490" y1="85" x2="620" y2="60" class="dag-link-line" id="link-2b-3" />
+            <line x1="740" y1="60" x2="820" y2="60" class="dag-link-line" id="link-3-4" />
+          </svg>
+
+          <div class="dag-nodes-row">
+            <!-- Node 1: PM -->
+            <div class="dag-node-box" id="node-wave-1">
+              <div class="node-badge">Wave 1</div>
+              <div class="node-actor">Sarah • PM</div>
+              <div class="node-task">PRD & Requisitos</div>
+              <div class="node-status-bar"></div>
+            </div>
+
+            <!-- Nodes Wave 2: Paralelos -->
+            <div class="dag-parallel-cluster">
+              <div class="dag-node-box" id="node-wave-2a">
+                <div class="node-badge parallel">Wave 2A</div>
+                <div class="node-actor">Alex • Arquiteto</div>
+                <div class="node-task">Contratos & APIs</div>
+                <div class="node-status-bar"></div>
+              </div>
+
+              <div class="dag-node-box" id="node-wave-2b">
+                <div class="node-badge parallel">Wave 2B</div>
+                <div class="node-actor">Carol • UI/UX</div>
+                <div class="node-task">Design Tokens</div>
+                <div class="node-status-bar"></div>
+              </div>
+            </div>
+
+            <!-- Node 3: Dev -->
+            <div class="dag-node-box" id="node-wave-3">
+              <div class="node-badge">Wave 3</div>
+              <div class="node-actor">Dan • Dev Sênior</div>
+              <div class="node-task">Código Tipado</div>
+              <div class="node-status-bar"></div>
+            </div>
+
+            <!-- Node 4: QA -->
+            <div class="dag-node-box" id="node-wave-4">
+              <div class="node-badge">Wave 4</div>
+              <div class="node-actor">Elena • QA</div>
+              <div class="node-task">Sandbox Test (Exit 0)</div>
+              <div class="node-status-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Console Log do Simulador em Tempo Real -->
+        <div class="sim-terminal-log" id="simLog">
+          <div class="log-line text-muted">[ONIX] Grafo acíclico dirigido carregado. Aguardando disparo do ciclo...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Componente Interativo 2: WhatsApp Enterprise Live Playground -->
+  <section id="whatsapp-demo" class="whatsapp-section">
+    <div class="content-wrapper">
+      <div class="section-title-block">
+        <span class="sub-label">Simulador Comercial Interativo</span>
+        <h2>Agente WhatsApp em Tempo Real</h2>
+        <p>Experimente como um agente autônomo do KONIG conduz um lead, quebra objeções e fecha a venda com memória de cliente.</p>
+      </div>
+
+      <div class="wa-interactive-layout">
+        <!-- Controles de Simulação -->
+        <div class="wa-prompt-controls spotlight-card">
+          <h3>Envie uma mensagem para o Agente:</h3>
+          <p class="control-desc">Clique nas perguntas comuns dos clientes ou digite sua própria mensagem para testar a resposta autônoma:</p>
+          
+          <div class="quick-questions-list">
+            <button class="btn-question" onclick="sendWaPreset('Quanto custa a consulta e tem horário para amanhã cedo?')">
+              "Quanto custa a consulta e tem horário para amanhã cedo?"
+            </button>
+            <button class="btn-question" onclick="sendWaPreset('Achei o valor um pouco puxado... Tem desconto à vista?')">
+              "Achei o valor um pouco puxado... Tem desconto à vista?"
+            </button>
+            <button class="btn-question" onclick="sendWaPreset('Vocês aceitam convênio ou emitem nota fiscal para reembolso?')">
+              "Vocês aceitam convênio ou emitem nota fiscal para reembolso?"
+            </button>
+            <button class="btn-question" onclick="sendWaPreset('Quero falar com um atendente humano agora!')">
+              "Quero falar com um atendente humano agora!" (Testar Handoff)
+            </button>
+          </div>
+
+          <div class="commercial-roi-box">
+            <h4>Ancoragem Comercial para Você:</h4>
+            <ul>
+              <li><strong>Implantação:</strong> R$ 2.500 a R$ 5.000 por cliente empresarial.</li>
+              <li><strong>Mensalidade:</strong> R$ 600 a R$ 1.200/mês para manter o bot rodando.</li>
+              <li><strong>Infraestrutura:</strong> Roda no seu servidor com custo de tokens < R$ 15/mês.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Phone Mockup com Chat Interativo -->
+        <div class="wa-phone-container spotlight-card">
+          <div class="wa-phone-header">
+            <div class="wa-contact-info">
+              <div class="wa-avatar-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div>
+                <div class="wa-contact-title">Clínica Odonto Prime • Agente KONIG</div>
+                <div class="wa-contact-status" id="waStatusText">online • Resposta em tempo real</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wa-chat-window" id="waChatWindow">
+            <div class="wa-msg wa-in">
+              <p>Olá! Bem-vindo à Clínica Odonto Prime. Como posso agilizar o seu atendimento hoje?</p>
+              <span class="wa-time">10:00</span>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div class="typing-indicator" id="waTypingIndicator">
+            <span></span><span></span><span></span>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="wa-chat-input-bar">
+            <input type="text" id="waCustomInput" placeholder="Digite uma mensagem..." onkeydown="handleWaInputKey(event)">
+            <button class="wa-btn-send" onclick="sendCustomWaMessage()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
-            </div>
-            <div>
-              <h3>Telegram Single-Bot Router</h3>
-              <p>Controle de squads de tecnologia e produto através de tópicos dedicados em supergrupos de fórum.</p>
-            </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Componente Interativo 3: Telegram Mobile Hub com Áudio & Tópicos -->
+  <section id="telegram-hub" class="telegram-section">
+    <div class="content-wrapper">
+      <div class="section-title-block">
+        <span class="sub-label">Comando Mobile Remoto</span>
+        <h2>Seu Squad no Telegram do Seu Celular</h2>
+        <p>Você comanda arquitetos, engenheiros e analistas através de mensagens ou áudio direto pelo smartphone.</p>
+      </div>
+
+      <div class="tg-hub-layout spotlight-card">
+        <!-- Sidebar de Tópicos do Telegram -->
+        <div class="tg-topics-sidebar">
+          <div class="tg-sidebar-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>KONIG Command Supergroup</span>
           </div>
 
-          <div class="topic-feed-container">
-            <div class="topic-item">
-              <span class="topic-badge eng">engenharia-core</span>
-              <p>Dan: Código do gateway compilado e submetido ao Sandbox.</p>
-            </div>
-            <div class="topic-item">
-              <span class="topic-badge qa">qa-automation</span>
-              <p>Elena: 14 asserções aprovadas no ambiente isolado. Exit code 0.</p>
-            </div>
-            <div class="topic-item">
-              <span class="topic-badge onix">onix-governance</span>
-              <p>ONIX: Handoff executado. Wave 3 concluída com sucesso.</p>
-            </div>
-          </div>
-
-          <div class="bento-footer">
-            <span class="card-caption">Gerencie deploys e validações diretamente pelo smartphone sem manter IDE aberta.</span>
+          <div class="tg-topic-list">
+            <button class="tg-topic-btn active" onclick="switchTgChannel('core')">
+              <span class="topic-dot blue"></span>
+              <span class="topic-name"># 💻 engenharia-core</span>
+              <span class="topic-count">2</span>
+            </button>
+            <button class="tg-topic-btn" onclick="switchTgChannel('marketing')">
+              <span class="topic-dot purple"></span>
+              <span class="topic-name"># 🚀 growth-marketing</span>
+              <span class="topic-count">1</span>
+            </button>
+            <button class="tg-topic-btn" onclick="switchTgChannel('sales')">
+              <span class="topic-dot green"></span>
+              <span class="topic-name"># 🤝 vendas-deals</span>
+              <span class="topic-count">3</span>
+            </button>
+            <button class="tg-topic-btn" onclick="switchTgChannel('onix')">
+              <span class="topic-dot cyan"></span>
+              <span class="topic-name"># 💎 onix-governance</span>
+              <span class="topic-count">1</span>
+            </button>
           </div>
         </div>
 
-        <!-- Card 3: AST Sandbox Runtime -->
-        <div class="bento-card">
+        <!-- Painel de Mensagens e Áudio do Telegram -->
+        <div class="tg-main-content">
+          <div class="tg-channel-header">
+            <span class="tg-header-title" id="tgChannelTitle"># 💻 engenharia-core</span>
+            <span class="tg-header-badge">5 Agentes Conectados</span>
+          </div>
+
+          <!-- Áudio Player Simulado com Waveform SVG -->
+          <div class="tg-voice-player">
+            <button class="btn-play-voice" id="btnVoicePlay" onclick="toggleVoiceAudio()">
+              <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <svg id="iconPause" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+            </button>
+            <div class="voice-waveform-box">
+              <div class="voice-meta">
+                <span class="voice-sender">Você (Mensagem de Voz enviada do celular)</span>
+                <span class="voice-duration" id="voiceTime">0:00 / 0:18</span>
+              </div>
+              <div class="waveform-bars" id="waveformBars">
+                <!-- Barras geradas dinamicamente via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Feed de Mensagens do Canal -->
+          <div class="tg-message-stream" id="tgMessageStream">
+            <!-- Injetado dinamicamente via app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid de Arquitetura & Segurança -->
+  <section id="arquitetura" class="bento-section">
+    <div class="content-wrapper">
+      <div class="section-title-block">
+        <span class="sub-label">Governança Industrial</span>
+        <h2>Pilares Tecnológicos de Defesa & Desempenho</h2>
+        <p>Cada componente é blindado contra falhas comuns que quebram outros ecossistemas em produção.</p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Card 1: AST Security Guardian -->
+        <div class="bento-card spotlight-card">
           <div class="bento-header">
             <div class="card-icon-wrapper">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -223,85 +403,105 @@
             </div>
             <div>
               <h3>AST Sandbox Guardrails</h3>
-              <p>Análise estática da árvore sintática abstrata antes de permitir a execução de qualquer script gerado por IA.</p>
+              <p>Inspeção estática da sintaxe de código gerado por IA antes de qualquer execução.</p>
             </div>
           </div>
 
           <div class="code-guard-box">
             <div class="code-line blocked">
               <span class="line-status">BLOQUEADO</span>
-              <code>import os; os.system("rm -rf /")</code>
+              <code>shutil.rmtree("/") # Bloqueio de AST</code>
             </div>
             <div class="code-line allowed">
               <span class="line-status">HOMOLOGADO</span>
-              <code>test_result = run_unit_tests()</code>
+              <code>suite.run_isolated_tests()</code>
             </div>
           </div>
-
-          <div class="bento-footer">
-            <span class="card-caption">Subprocessos com teto de memória e timeout rígido configurável.</span>
-          </div>
+          <span class="card-caption">Subprocessos com limite de RAM e timeout rígido configurável.</span>
         </div>
 
-        <!-- Card 4: KRONOS & Wave Orchestration -->
-        <div class="bento-card bento-wide">
+        <!-- Card 2: SYNAPSE Context Memory -->
+        <div class="bento-card spotlight-card">
           <div class="bento-header">
             <div class="card-icon-wrapper">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                <polyline points="2 17 12 22 22 17"></polyline>
-                <polyline points="2 12 12 17 22 12"></polyline>
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 14 14"></polyline>
               </svg>
             </div>
             <div>
-              <h3>ONIX Wave Engine (Resolução Topológica de DAGs)</h3>
-              <p>Execução em ondas paralelas coordenadas pelo Algoritmo de Kahn com barreira formal de sincronização.</p>
+              <h3>SYNAPSE Context Brackets</h3>
+              <p>Monitoramento ativo em 4 zonas operacionais com compressão de até 90% de histórico.</p>
             </div>
           </div>
 
-          <div class="wave-visualizer">
-            <div class="wave-step">
-              <div class="wave-node">Wave 1</div>
-              <div class="wave-title">Sarah • PM</div>
-              <div class="wave-task">PRD & Requisitos Formais</div>
-            </div>
-            <div class="wave-connector">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </div>
-            <div class="wave-step parallel">
-              <div class="wave-node">Wave 2 (Paralela)</div>
-              <div class="wave-title">Alex + Carol</div>
-              <div class="wave-task">Arquitetura de Dados & Design Tokens</div>
-            </div>
-            <div class="wave-connector">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </div>
-            <div class="wave-step">
-              <div class="wave-node">Wave 3</div>
-              <div class="wave-title">Dan • Dev</div>
-              <div class="wave-task">Implementação Fullstack Tipada</div>
-            </div>
-            <div class="wave-connector">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </div>
-            <div class="wave-step">
-              <div class="wave-node">Wave 4</div>
-              <div class="wave-title">Elena • QA</div>
-              <div class="wave-task">Asserções no Sandbox (Exit Code 0)</div>
-            </div>
+          <div class="synapse-zones-bar">
+            <div class="zone-segment green" title="0-60%: Zona Verde (Operação Normal)">Normal</div>
+            <div class="zone-segment yellow" title="60-75%: Zona Amarela (Alerta)">Alerta</div>
+            <div class="zone-segment orange" title="75-85%: Zona Laranja (Compressão)">Compresso</div>
+            <div class="zone-segment red" title="85%+: Zona Vermelha (Poda Rigorosa)">Poda</div>
           </div>
-
-          <div class="bento-footer">
-            <span class="card-caption">Zero dependências circulares. Paralelismo determinístico sem sobrecarga ou alucinação encadeada.</span>
-          </div>
+          <span class="card-caption">Blocos de código, contratos REST e regras de negócio são preservados 100% intactos.</span>
         </div>
 
+        <!-- Card 3: Auditoria Financeira em Realtime -->
+        <div class="bento-card spotlight-card">
+          <div class="bento-header">
+            <div class="card-icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div>
+              <h3>CostManager & Rastreio de Tokens</h3>
+              <p>Auditoria precisa do custo em USD e consumo de tokens por agente e por tarefa.</p>
+            </div>
+          </div>
+
+          <div class="cost-stat-row">
+            <div class="stat-box">
+              <div class="stat-number">$0.0042</div>
+              <div class="stat-desc">Custo médio por PRD completo</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">100%</div>
+              <div class="stat-desc">Proteção contra estouro de budget</div>
+            </div>
+          </div>
+          <span class="card-caption">Trava de emergência automática ao atingir teto configurável no .env.</span>
+        </div>
+
+        <!-- Card 4: Suporte Universal a IDEs -->
+        <div class="bento-card spotlight-card">
+          <div class="bento-header">
+            <div class="card-icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3>Sincronização Nativa Multi-IDE</h3>
+              <p>Regras, contexto e agentes compartilhados sem amarras com ferramentas isoladas.</p>
+            </div>
+          </div>
+
+          <div class="ide-tags-cloud">
+            <span class="ide-tag">.antigravity</span>
+            <span class="ide-tag">.cursor</span>
+            <span class="ide-tag">.claude</span>
+            <span class="ide-tag">.codex</span>
+            <span class="ide-tag">.vscode</span>
+          </div>
+          <span class="card-caption">Uma única fonte de verdade compartilhada por qualquer IA ou desenvolvedor.</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Matriz de Benchmark Técnico -->
-  <section id="comparativo" class="benchmark-section">
+  <section id="benchmark" class="benchmark-section">
     <div class="content-wrapper">
       <div class="section-title-block">
         <span class="sub-label">Análise de Engenharia</span>
@@ -309,7 +509,7 @@
         <p>Critérios objetivos de segurança, previsibilidade e governança de produção avaliados tecnicamente.</p>
       </div>
 
-      <div class="table-responsive-container">
+      <div class="table-responsive-container spotlight-card">
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -355,37 +555,38 @@
     </div>
   </section>
 
-  <!-- Seção de Código e CLI Interativo -->
-  <section id="codigo" class="code-section">
+  <!-- Terminal Interativo Executável -->
+  <section class="interactive-terminal-section">
     <div class="content-wrapper">
       <div class="section-title-block">
-        <span class="sub-label">API de Desenvolvimento</span>
-        <h2>Simplicidade para o Desenvolvedor. Rigor para a Empresa.</h2>
-        <p>Desenhe squads em arquivos YAML declarativos ou instancie o motor do ONIX diretamente em Python.</p>
+        <span class="sub-label">Playground Interativo da CLI</span>
+        <h2>Simule os Comandos do KONIG no Navegador</h2>
+        <p>Clique nos botões de comando para simular a saída instantânea de execução da CLI oficial.</p>
       </div>
 
-      <div class="code-tabs-wrapper">
-        <div class="code-tabs-header">
-          <button class="tab-btn active" onclick="selectTab('python')">meta_orchestrator.py</button>
-          <button class="tab-btn" onclick="selectTab('cli')">Terminal CLI</button>
-          <button class="tab-btn" onclick="selectTab('yaml')">workflow.yaml</button>
+      <div class="terminal-interactive-box spotlight-card">
+        <div class="terminal-tab-bar">
+          <div class="term-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="term-commands-nav">
+            <button class="btn-term-cmd active" onclick="execTermCmd('list')">konig list</button>
+            <button class="btn-term-cmd" onclick="execTermCmd('run')">konig run .agents</button>
+            <button class="btn-term-cmd" onclick="execTermCmd('sandbox')">konig sandbox</button>
+            <button class="btn-term-cmd" onclick="execTermCmd('benchmark')">konig benchmark</button>
+          </div>
         </div>
 
-        <div class="code-viewer-body" id="codeContent">
-<pre><code class="language-python">from core.engine.meta_orchestrator import OnixMetaOrchestrator
-
-# Inicialização do ONIX Master Orchestrator
-onix = OnixMetaOrchestrator()
-
-# Geração automática da arquitetura de um Squad
-blueprint = onix.generate_squad_blueprint(
-    squad_type="commercial_whatsapp",
-    domain_goal="Qualificação e fechamento de contratos para serviços de saúde"
-)
-
-# Materialização de agentes, checklists e workflows declarativos no disco
-squad_path = onix.scaffold_squad_files(blueprint)
-print(f"Squad de alta conversão homologado em: {squad_path}")</code></pre>
+        <div class="term-console-body" id="termConsole">
+          <div class="c-line text-cyan">$ konig list</div>
+          <div class="c-line text-white">SQUADS DISPONÍVEIS NO KONIG FRAMEWORK:</div>
+          <div class="c-line text-green">✔ Squad de Engenharia (.agents): 5 Agentes | 5 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">✔ Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">✔ Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">✔ Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
+          <div class="c-line text-muted">Adaptadores Multi-IDE ativos: .antigravity, .cursor, .claude, .codex, .vscode</div>
         </div>
       </div>
     </div>
@@ -394,7 +595,7 @@ print(f"Squad de alta conversão homologado em: {squad_path}")</code></pre>
   <!-- Quickstart -->
   <section id="quickstart" class="quickstart-section">
     <div class="content-wrapper">
-      <div class="quickstart-box">
+      <div class="quickstart-box spotlight-card">
         <h2>Pronto para implantar em produção?</h2>
         <p>Clone o repositório oficial no GitHub e execute o instalador automatizado para iniciar seu primeiro squad em menos de 60 segundos.</p>
         
@@ -426,7 +627,7 @@ print(f"Squad de alta conversão homologado em: {squad_path}")</code></pre>
         </div>
         <p class="footer-desc">
           Enterprise Autonomous Agent Orchestration Engine.<br>
-          Governança de IA, execução determinística e omnichannel corporativo.
+          Governança determinística de IA, isolamento estrito de runtime e omnichannel corporativo.
         </p>
       </div>
 
