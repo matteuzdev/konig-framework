@@ -225,13 +225,13 @@ function sendWaUserMessage(userText) {
     const p = agentMsgEl.querySelector('p');
     let i = 0;
     const interval = setInterval(() => {
-      p.innerText += reply[i];
+      p.textContent += reply[i];
       i++;
       chat.scrollTop = chat.scrollHeight;
       if (i >= reply.length) {
         clearInterval(interval);
       }
-    }, 18);
+    }, 14);
 
   }, 1000);
 }
