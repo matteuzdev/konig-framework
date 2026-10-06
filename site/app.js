@@ -135,7 +135,7 @@ function runDagSimulation() {
 
   setTimeout(() => {
     node1.className = 'dag-node-box completed';
-    m1.innerText = '✔ PRD Aprovado (Score 1.0)';
+    m1.innerText = '[OK] PRD Aprovado (Score 1.0)';
     w1_2a.classList.add('active');
     w1_2b.classList.add('active');
     log.innerHTML += `<div class="log-line text-green">[WAVE 1] Gate de PRD aprovado. Handoff propagado para Wave 2.</div>`;
@@ -150,8 +150,8 @@ function runDagSimulation() {
     setTimeout(() => {
       node2a.className = 'dag-node-box parallel-node completed';
       node2b.className = 'dag-node-box parallel-node completed';
-      m2a.innerText = '✔ OpenAPI Homologada';
-      m2b.innerText = '✔ Design System Pronto';
+      m2a.innerText = '[OK] OpenAPI Homologada';
+      m2b.innerText = '[OK] Design System Pronto';
       w1_2a.className = 'dag-wire completed';
       w1_2b.className = 'dag-wire completed';
       w2a_3.classList.add('active');
@@ -165,7 +165,7 @@ function runDagSimulation() {
 
       setTimeout(() => {
         node3.className = 'dag-node-box completed';
-        m3.innerText = '✔ Build Concluído (0 errors)';
+        m3.innerText = '[OK] Build Concluído (0 errors)';
         w2a_3.className = 'dag-wire completed';
         w2b_3.className = 'dag-wire completed';
         w3_4.classList.add('active');
@@ -178,10 +178,10 @@ function runDagSimulation() {
 
         setTimeout(() => {
           node4.className = 'dag-node-box completed';
-          m4.innerText = '✔ 14/14 Testes Passaram';
+          m4.innerText = '[PASS] 14/14 Testes Passaram';
           w3_4.className = 'dag-wire completed';
-          log.innerHTML += `<div class="log-line text-green">✔ [WAVE 4] 100% dos testes aprovados no KonigSandbox (Exit Code: 0 | AST: Seguro).</div>`;
-          log.innerHTML += `<div class="log-line text-white">🎉 [ONIX] Ciclo concluído com sucesso. Telemetria: 0.14s | Custo: $0.0031 USD.</div>`;
+          log.innerHTML += `<div class="log-line text-green">[WAVE 4] 100% dos testes aprovados no KonigSandbox (Exit Code: 0 | AST: Seguro).</div>`;
+          log.innerHTML += `<div class="log-line text-white">[ONIX] Ciclo concluído com sucesso. Telemetria: 0.14s | Tokens: 1,420 | Status: Exit 0.</div>`;
           stateText.innerText = 'Ciclo Finalizado com Sucesso (Exit Code 0)';
           btn.disabled = false;
           isSimulating = false;
@@ -228,10 +228,10 @@ function resetDagSimulation() {
 // 4. WHATSAPP LIVE PLAYGROUND (STREAMING & TYPING INDICATOR)
 // ==============================================================================
 const waKnowledgeBase = {
-  preco: "A consulta odontológica inicial com escaneamento digital 3D e raio-x panorâmico completo sai por R$ 180. Temos disponibilidade para amanhã às 09:30 e às 11:00 com o Dr. Marcos. Posso reservar o seu horário?",
-  desconto: "Para pagamento à vista via Pix ou no pacote com limpeza preventiva, conseguimos fechar por R$ 150 já com o laudo completo entregue na hora! Quer que eu garanta o horário das 09:30 pra você agora?",
-  convenio: "Trabalhamos na modalidade de livre escolha com emissão de nota fiscal e relatório descritivo para reembolso integral junto ao seu plano de saúde! Mais de 90% dos nossos pacientes conseguem reembolso rápido. Deseja agendar?",
-  handoff: "Entendido! Já estou pausando o atendimento autônomo e transferindo nossa conversa com todo o seu histórico para a nossa coordenadora humana, Paula. Ela vai te responder por aqui em instantes."
+  status: "[TELEMETRIA] Todos os 5 agentes do squad de engenharia (.agents) estão operando normalmente. O pipeline da Wave 3 concluiu a refatoração dos contratos OpenAPI. Zero deadlocks ou timeouts registrados no cluster.",
+  falha: "[DIAGNÓSTICO AST] A asserção `test_sandbox_timeout` da Wave 4 gerou falha devido à latência de 15s na API externa mockada. O motor ONIX realizou rollback automático e recomenda isolar a resposta local no sandbox.",
+  metricas: "[MÉTRICAS DE EXECUÇÃO] Consumo nos últimos 7 dias: 412.000 tokens processados ($0.82 USD via Claude / DeepSeek). A poda do SYNAPSE economizou 3.2M de tokens redundantes (88.5% de redução de contexto).",
+  handoff: "[HANDOFF DETERMINÍSTICO] Pausando execução autônoma do agente. Snapshot de estado, variáveis de ambiente e stack trace completo foram roteados para o engenheiro responsável. Intervenção humana liberada."
 };
 
 function sendWaPreset(text) {
@@ -269,15 +269,15 @@ function sendWaUserMessage(userText) {
   typing.classList.add('active');
   statusText.innerText = 'digitando...';
 
-  // Seleciona resposta com base em palavras-chave
-  let reply = waKnowledgeBase.preco;
+  // Seleciona resposta com base em palavras-chave técnicas
+  let reply = waKnowledgeBase.status;
   const lower = userText.toLowerCase();
 
-  if (lower.includes('desconto') || lower.includes('puxado') || lower.includes('caro')) {
-    reply = waKnowledgeBase.desconto;
-  } else if (lower.includes('convênio') || lower.includes('convenio') || lower.includes('reembolso')) {
-    reply = waKnowledgeBase.convenio;
-  } else if (lower.includes('humano') || lower.includes('atendente') || lower.includes('pessoa')) {
+  if (lower.includes('falha') || lower.includes('ast') || lower.includes('erro') || lower.includes('diagnóstico') || lower.includes('diagnostico')) {
+    reply = waKnowledgeBase.falha;
+  } else if (lower.includes('token') || lower.includes('métrica') || lower.includes('metrica') || lower.includes('telemetria') || lower.includes('consumo') || lower.includes('dias')) {
+    reply = waKnowledgeBase.metricas;
+  } else if (lower.includes('handoff') || lower.includes('humano') || lower.includes('on-call') || lower.includes('intervenção') || lower.includes('intervencao')) {
     reply = waKnowledgeBase.handoff;
   }
 
@@ -301,9 +301,9 @@ function sendWaUserMessage(userText) {
       if (i >= reply.length) {
         clearInterval(interval);
       }
-    }, 14);
+    }, 12);
 
-  }, 1000);
+  }, 800);
 }
 
 // ==============================================================================
@@ -311,30 +311,29 @@ function sendWaUserMessage(userText) {
 // ==============================================================================
 const tgChannels = {
   core: {
-    title: '# 💻 engenharia-core',
+    title: '# engenharia-core',
     msgs: [
       { agent: 'Sarah • Product Manager', text: 'Requisitos do novo gateway de faturamento aprovados com critérios de aceite determinísticos. Handoff emitido.' },
       { agent: 'Dan • Senior Engineer', text: 'Código desenvolvido com type hints e guardrails de timeout. Executando bateria de testes no Sandbox seguro.' },
-      { agent: 'Elena • Staff QA', text: '✔ 14 testes unitários aprovados no KonigSandbox. Zero violações estáticas de AST. Pronto para branch main.' }
+      { agent: 'Elena • Staff QA', text: '[PASS] 14 testes unitários aprovados no KonigSandbox. Zero violações estáticas de AST. Pronto para branch main.' }
     ]
   },
   marketing: {
-    title: '# 🚀 growth-marketing',
+    title: '# squads-registry',
     msgs: [
-      { agent: 'Marcus • CMO', text: 'Estratégia de aquisição B2B estruturada. Canais validados: Google Ads Topo de Funil e Outbound SDR.' },
-      { agent: 'Helena • Copywriter', text: 'Copy de alta conversão redigida com quebra de objeções sobre atendimento autônomo no WhatsApp.' }
+      { agent: 'Registry • Orchestrator', text: 'Sincronização de squads concluída: 4 squads carregados a partir de .agents e squads/*.yaml.' },
+      { agent: 'Schema Validator', text: 'Todos os schemas de agents e tasks validados com Pydantic v2 sem warnings.' }
     ]
   },
   sales: {
-    title: '# 🤝 vendas-deals',
+    title: '# pipeline-deploy',
     msgs: [
-      { agent: 'Lucas • SDR Lead', text: 'Qualificação de lead concluída: Clínica Sorriso Perfeito. Faturamento validado. Reunião agendada para amanhã às 14h.' },
-      { agent: 'Roberto • Closer', text: 'Contrato de R$ 3.500 de implantação + R$ 800/mês de manutenção fechado em call de 25 minutos.' },
-      { agent: 'Clara • Customer Success', text: 'Instância WhatsApp provisionada e entregue com checklist de onboarding finalizado.' }
+      { agent: 'CI/CD Pipeline', text: 'Container Docker montado com sucesso. MCP Server provisionado com porta isolada.' },
+      { agent: 'Release Guardian', text: 'Tag v2.0.0 aprovada com Exit Code 0. Artefatos de build sincronizados no GitHub.' }
     ]
   },
   onix: {
-    title: '# 💎 onix-governance',
+    title: '# onix-governance',
     msgs: [
       { agent: 'ONIX • Master Orchestrator', text: 'Supervisão ativa: 3 squads em paralelismo contínuo. SYNAPSE Context Memory operando com 18% de ocupação na Zona Verde.' },
       { agent: 'ONIX • Cost Manager', text: 'Auditoria financeira do ciclo: $0.18 USD consumidos. Trava de emergência íntegra.' }
@@ -434,34 +433,34 @@ function toggleVoiceAudio() {
 const termOutputs = {
   list: `<div class="c-line text-cyan">$ konig list</div>
 <div class="c-line text-white">SQUADS DISPONÍVEIS NO KONIG FRAMEWORK:</div>
-<div class="c-line text-green">✔ Squad de Engenharia (.agents): 5 Agentes | 5 Tasks | 1 Workflows</div>
-<div class="c-line text-green">✔ Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
-<div class="c-line text-green">✔ Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
-<div class="c-line text-green">✔ Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
+<div class="c-line text-green">[OK] Squad de Engenharia (.agents): 5 Agentes | 5 Tasks | 1 Workflows</div>
+<div class="c-line text-green">[OK] Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
+<div class="c-line text-green">[OK] Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
+<div class="c-line text-green">[OK] Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
 <div class="c-line text-muted">Adaptadores Multi-IDE ativos: .antigravity, .cursor, .claude, .codex, .vscode</div>`,
 
   run: `<div class="c-line text-cyan">$ konig run .agents full_development_lifecycle</div>
-<div class="c-line text-white">🦁 KONIG CLI — Iniciando execução de Squad: [.agents]</div>
-<div class="c-line text-green">✔ Wave 1: Sarah (PM) aprovou especificação de requisitos.</div>
-<div class="c-line text-green">✔ Wave 2: Alex (Arquiteto) & Carol (Design) homologaram contratos.</div>
-<div class="c-line text-green">✔ Wave 3: Dan (Engenheiro) compilou código tipado.</div>
-<div class="c-line text-green">✔ Wave 4: Elena (QA) aprovou no Sandbox isolado com Exit Code 0.</div>
-<div class="c-line text-cyan">🎉 Execução finalizada com 100% de conformidade.</div>`,
+<div class="c-line text-white">[EXEC] KONIG CLI — Iniciando execução de Squad: [.agents]</div>
+<div class="c-line text-green">[OK] Wave 1: Sarah (PM) aprovou especificação de requisitos.</div>
+<div class="c-line text-green">[OK] Wave 2: Alex (Arquiteto) & Carol (Design) homologaram contratos.</div>
+<div class="c-line text-green">[OK] Wave 3: Dan (Engenheiro) compilou código tipado.</div>
+<div class="c-line text-green">[OK] Wave 4: Elena (QA) aprovou no Sandbox isolado com Exit Code 0.</div>
+<div class="c-line text-cyan">[SUCESSO] Execução finalizada com 100% de conformidade.</div>`,
 
   sandbox: `<div class="c-line text-cyan">$ konig sandbox scripts/test_pipeline.py</div>
-<div class="c-line text-white">🛡️ KONIG AST Security Guardian: Analisando sintaxe estática...</div>
-<div class="c-line text-green">✔ Zero chamadas de sistema não autorizadas detectadas.</div>
-<div class="c-line text-green">✔ Subprocesso isolado iniciado com teto de memória e timeout de 15s.</div>
+<div class="c-line text-white">[AST-GUARD] KONIG AST Security Guardian: Analisando sintaxe estática...</div>
+<div class="c-line text-green">[OK] Zero chamadas de sistema não autorizadas detectadas.</div>
+<div class="c-line text-green">[OK] Subprocesso isolado iniciado com teto de memória e timeout de 15s.</div>
 <div class="c-line text-white">Saída do Processo:</div>
 <div class="c-line text-green">RAN 12 TESTS IN 0.18s — ALL PASSED (EXIT CODE 0)</div>`,
 
   benchmark: `<div class="c-line text-cyan">$ konig benchmark</div>
 <div class="c-line text-white">MATRIZ INDUSTRIAL DE MATURIDADE:</div>
-<div class="c-line text-green">✔ Orquestração DAG Wave Engine: HOMOLOGADO</div>
-<div class="c-line text-green">✔ AST Sandbox Runtime Isolado: HOMOLOGADO</div>
-<div class="c-line text-green">✔ SYNAPSE Context Memory (4 Zonas): HOMOLOGADO</div>
-<div class="c-line text-green">✔ Omnichannel Nativo (Telegram & WhatsApp): HOMOLOGADO</div>
-<div class="c-line text-cyan">🏆 VEREDITO: Governança determinística de ponta a ponta sem alucinação.</div>`
+<div class="c-line text-green">[OK] Orquestração DAG Wave Engine: HOMOLOGADO</div>
+<div class="c-line text-green">[OK] AST Sandbox Runtime Isolado: HOMOLOGADO</div>
+<div class="c-line text-green">[OK] SYNAPSE Context Memory (4 Zonas): HOMOLOGADO</div>
+<div class="c-line text-green">[OK] Omnichannel Nativo (Telegram & WhatsApp): HOMOLOGADO</div>
+<div class="c-line text-cyan">[HOMOLOGADO] Veredito: Governança determinística de ponta a ponta sem alucinação.</div>`
 };
 
 function execTermCmd(cmdKey) {

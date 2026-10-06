@@ -234,42 +234,43 @@
     </div>
   </section>
 
-  <!-- Componente Interativo 2: WhatsApp Enterprise Live Playground -->
+  <!-- Componente Interativo 2: WhatsApp Enterprise Agentic Runtime -->
   <section id="whatsapp-demo" class="whatsapp-section">
     <div class="content-wrapper">
       <div class="section-title-block">
-        <span class="sub-label">Simulador Comercial Interativo</span>
-        <h2>Agente WhatsApp em Tempo Real</h2>
-        <p>Experimente como um agente autônomo do KONIG conduz um lead, quebra objeções e fecha a venda com memória de cliente.</p>
+        <span class="sub-label">Runtime Omnichannel em Produção</span>
+        <h2>Agente Autônomo com Tool Calling no WhatsApp</h2>
+        <p>Enquanto a maioria dos frameworks limita agentes ao terminal de desenvolvimento, o KONIG conecta squads inteiros à camada de mensagens corporativas com resolução assíncrona, recuperação de contexto e handoff determinístico.</p>
       </div>
 
       <div class="wa-interactive-layout">
-        <!-- Controles de Simulação -->
+        <!-- Controles de Simulação Técnica -->
         <div class="wa-prompt-controls spotlight-card">
-          <h3>Envie uma mensagem para o Agente:</h3>
-          <p class="control-desc">Clique nas perguntas comuns dos clientes ou digite sua própria mensagem para testar a resposta autônoma:</p>
+          <h3>Dispare uma instrução para o Agente:</h3>
+          <p class="control-desc">Selecione comandos de infraestrutura e governança ou envie sua mensagem para testar a resposta técnica do agente:</p>
           
           <div class="quick-questions-list">
-            <button class="btn-question" onclick="sendWaPreset('Quanto custa a consulta e tem horário para amanhã cedo?')">
-              "Quanto custa a consulta e tem horário para amanhã cedo?"
+            <button class="btn-question" onclick="sendWaPreset('Qual o status de execução do squad de engenharia no pipeline?')">
+              "Qual o status de execução do squad de engenharia no pipeline?"
             </button>
-            <button class="btn-question" onclick="sendWaPreset('Achei o valor um pouco puxado... Tem desconto à vista?')">
-              "Achei o valor um pouco puxado... Tem desconto à vista?"
+            <button class="btn-question" onclick="sendWaPreset('A asserção AST da Wave 4 gerou falha. Qual o diagnóstico e plano de ação?')">
+              "A asserção AST da Wave 4 gerou falha. Qual o diagnóstico e plano de ação?"
             </button>
-            <button class="btn-question" onclick="sendWaPreset('Vocês aceitam convênio ou emitem nota fiscal para reembolso?')">
-              "Vocês aceitam convênio ou emitem nota fiscal para reembolso?"
+            <button class="btn-question" onclick="sendWaPreset('Consulte a telemetria do cluster e exiba o consumo de tokens dos últimos 7 dias.')">
+              "Consulte a telemetria do cluster e exiba o consumo de tokens dos últimos 7 dias."
             </button>
-            <button class="btn-question" onclick="sendWaPreset('Quero falar com um atendente humano agora!')">
-              "Quero falar com um atendente humano agora!" (Testar Handoff)
+            <button class="btn-question" onclick="sendWaPreset('Disparar Handoff Determinístico para o engenheiro on-call agora.')">
+              "Disparar Handoff Determinístico para o engenheiro on-call agora."
             </button>
           </div>
 
           <div class="commercial-roi-box">
-            <h4>Ancoragem Comercial para Você:</h4>
+            <h4>Diferenciais do Runtime Omnichannel (KONIG vs AIOS/CrewAI):</h4>
             <ul>
-              <li><strong>Implantação:</strong> R$ 2.500 a R$ 5.000 por cliente empresarial.</li>
-              <li><strong>Mensalidade:</strong> R$ 600 a R$ 1.200/mês para manter o bot rodando.</li>
-              <li><strong>Infraestrutura:</strong> Roda no seu servidor com custo de tokens < R$ 15/mês.</li>
+              <li><strong>Tool Use & APIs:</strong> Execução nativa de chamadas de API, queries SQL e automações sem bloquear o runtime.</li>
+              <li><strong>Isolamento Multitenant:</strong> Sessões isoladas com RAG vetorial e memória persistente por número/cliente.</li>
+              <li><strong>Handoff Determinístico:</strong> Transição fluida de contexto para humanos quando detectada anomalia.</li>
+              <li><strong>SYNAPSE Memory:</strong> Redução de até 90% no overhead de tokens enviados em cada mensagem.</li>
             </ul>
           </div>
         </div>
@@ -280,20 +281,21 @@
             <div class="wa-contact-info">
               <div class="wa-avatar-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                  <path d="M2 17l10 5 10-5"></path>
+                  <path d="M2 12l10 5 10-5"></path>
                 </svg>
               </div>
               <div>
-                <div class="wa-contact-title">Clínica Odonto Prime • Agente KONIG</div>
-                <div class="wa-contact-status" id="waStatusText">online • Resposta em tempo real</div>
+                <div class="wa-contact-title">KONIG Ops • Agentic Gateway</div>
+                <div class="wa-contact-status" id="waStatusText">online • Conectado ao Core Engine</div>
               </div>
             </div>
           </div>
 
           <div class="wa-chat-window" id="waChatWindow">
             <div class="wa-msg wa-in">
-              <p>Olá! Bem-vindo à Clínica Odonto Prime. Como posso agilizar o seu atendimento hoje?</p>
+              <p>[KONIG Engine] Gateway agêntico ativo. Squads e pipelines monitorados em tempo real. Envie um comando técnico ou consulta de status.</p>
               <span class="wa-time">10:00</span>
             </div>
           </div>
@@ -305,7 +307,7 @@
 
           <!-- Chat Input -->
           <div class="wa-chat-input-bar">
-            <input type="text" id="waCustomInput" placeholder="Digite uma mensagem..." onkeydown="handleWaInputKey(event)">
+            <input type="text" id="waCustomInput" placeholder="Digite um comando técnico para o agente..." onkeydown="handleWaInputKey(event)">
             <button class="wa-btn-send" onclick="sendCustomWaMessage()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -340,22 +342,22 @@
           <div class="tg-topic-list">
             <button class="tg-topic-btn active" onclick="switchTgChannel('core')">
               <span class="topic-dot blue"></span>
-              <span class="topic-name"># 💻 engenharia-core</span>
+              <span class="topic-name"># engenharia-core</span>
               <span class="topic-count">2</span>
             </button>
             <button class="tg-topic-btn" onclick="switchTgChannel('marketing')">
               <span class="topic-dot purple"></span>
-              <span class="topic-name"># 🚀 growth-marketing</span>
+              <span class="topic-name"># squads-registry</span>
               <span class="topic-count">1</span>
             </button>
             <button class="tg-topic-btn" onclick="switchTgChannel('sales')">
               <span class="topic-dot green"></span>
-              <span class="topic-name"># 🤝 vendas-deals</span>
+              <span class="topic-name"># pipeline-deploy</span>
               <span class="topic-count">3</span>
             </button>
             <button class="tg-topic-btn" onclick="switchTgChannel('onix')">
               <span class="topic-dot cyan"></span>
-              <span class="topic-name"># 💎 onix-governance</span>
+              <span class="topic-name"># onix-governance</span>
               <span class="topic-count">1</span>
             </button>
           </div>
@@ -364,7 +366,7 @@
         <!-- Painel de Mensagens e Áudio do Telegram -->
         <div class="tg-main-content">
           <div class="tg-channel-header">
-            <span class="tg-header-title" id="tgChannelTitle"># 💻 engenharia-core</span>
+            <span class="tg-header-title" id="tgChannelTitle"># engenharia-core</span>
             <span class="tg-header-badge">5 Agentes Conectados</span>
           </div>
 
@@ -599,10 +601,10 @@
         <div class="term-console-body" id="termConsole">
           <div class="c-line text-cyan">$ konig list</div>
           <div class="c-line text-white">SQUADS DISPONÍVEIS NO KONIG FRAMEWORK:</div>
-          <div class="c-line text-green">✔ Squad de Engenharia (.agents): 5 Agentes | 5 Tasks | 1 Workflows</div>
-          <div class="c-line text-green">✔ Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
-          <div class="c-line text-green">✔ Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
-          <div class="c-line text-green">✔ Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">[OK] Squad de Engenharia (.agents): 5 Agentes | 5 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">[OK] Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">[OK] Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
+          <div class="c-line text-green">[OK] Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
           <div class="c-line text-muted">Adaptadores Multi-IDE ativos: .antigravity, .cursor, .claude, .codex, .vscode</div>
         </div>
       </div>
