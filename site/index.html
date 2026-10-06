@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KONIG Framework — Agentes Autônomos no WhatsApp & Telegram</title>
+  <meta name="description" content="O primeiro framework de agentes de IA autônomos com orquestração industrial, vendas no WhatsApp e gestão de squads no Telegram direto pelo celular.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light">
+
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo-link">
+        <span class="logo-symbol">👑</span>
+        <span class="logo-text">KONIG</span>
+        <span class="logo-badge">v2.0 • ONIX</span>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="#whatsapp" class="nav-item">WhatsApp Vendas</a>
+        <a href="#telegram" class="nav-item">Telegram no Celular</a>
+        <a href="#pilares" class="nav-item">Os 7 Pilares</a>
+        <a href="#quickstart" class="nav-item">Comece em 1 Min</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="btn-icon" title="Alternar Modo Claro / Escuro">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <a href="https://github.com/matteuzdev/konig-framework" target="_blank" rel="noopener noreferrer" class="btn-github">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-tag">
+        <span class="tag-pulse"></span>
+        <span>A Revolução dos Agentes Fora do Terminal</span>
+      </div>
+
+      <h1 class="hero-title">
+        Pare de criar agentes que só funcionam dentro do seu computador.
+      </h1>
+
+      <p class="hero-subtitle">
+        O primeiro framework autônomo projetado para duas realidades lucrativas: 
+        <strong>vender agentes de alta conversão para o WhatsApp de empresas</strong> e 
+        <strong>colocar seu time de engenharia e marketing operando no Telegram direto do seu celular</strong>.
+      </p>
+
+      <div class="hero-cta-box">
+        <div class="command-card">
+          <span class="command-prefix">$</span>
+          <span class="command-text" id="cmdText">git clone https://github.com/matteuzdev/konig-framework.git && cd konig-framework && python install.py</span>
+          <button class="btn-copy" id="copyBtn" onclick="copyCommand()" title="Copiar comando">
+            <span id="copyText">Copiar</span>
+          </button>
+        </div>
+        <p class="hero-note">⚡ Setup didático com assistente interativo em 1 minuto. Sem quebra de dependências.</p>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-num">24/7</div>
+          <div class="metric-label">Agentes Fechando Vendas no WhatsApp</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">100%</div>
+          <div class="metric-label">Operação no Telegram via Celular</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">90%</div>
+          <div class="metric-label">Economia de Contexto com SYNAPSE</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">0 s</div>
+          <div class="metric-label">Risco com AST Sandbox Isolado</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 1: O Universo WhatsApp (Lucro & Venda de Agentes) -->
+  <section id="whatsapp" class="section-showcase light-bg">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag emerald">MÁQUINA DE RECEITA RECORRENTE</span>
+        <h2>Venda Agentes de WhatsApp para Empresas Reais</h2>
+        <p>Chatbots com menu numerado e respostas engessadas estão mortos. O KONIG permite que você implante consultores e vendedores autônomos treinados para clínicas, imobiliárias e e-commerces.</p>
+      </div>
+
+      <div class="split-grid">
+        <div class="split-info">
+          <div class="info-item">
+            <div class="info-icon">💰</div>
+            <div>
+              <h3>Modelo de Negócio Pronto para Vender</h3>
+              <p>Cobre de <strong>R$ 2.500 a R$ 5.000</strong> pela implantação e mantenha uma mensalidade recorrente de <strong>R$ 600 a R$ 1.200/mês</strong> por cliente.</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">🧠</div>
+            <div>
+              <h3>Memória de Cliente & Contorno de Objeções</h3>
+              <p>O agente lembra do histórico do lead, quebra objeções com psicologia de vendas e envia chave Pix ou link de checkout no momento exato.</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">🛡️</div>
+            <div>
+              <h3>Anti-Alucinação & Handoff Humano</h3>
+              <p>Se o cliente fizer uma pergunta fora do catálogo ou pedir atendente humano, o KONIG avisa sua equipe via WhatsApp instantaneamente.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mockup WhatsApp Interativo -->
+        <div class="mockup-wrapper">
+          <div class="phone-mockup">
+            <div class="phone-header">
+              <div class="phone-contact">
+                <div class="contact-avatar">🤖</div>
+                <div class="contact-details">
+                  <div class="contact-name">Agente KONIG (Clínica Sorriso)</div>
+                  <div class="contact-status">online • Atendimento Autônomo</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-chat" id="whatsappChat">
+              <div class="msg msg-incoming">
+                <p>Olá! Queria saber o preço da consulta e se tem vaga pra amanhã cedo?</p>
+                <span class="msg-time">09:14</span>
+              </div>
+              <div class="msg msg-outgoing">
+                <p>Bom dia! Temos sim! Amanhã temos às 09:30 e às 11:00 com o Dr. Marcos. A avaliação completa com escaneamento 3D sai por R$ 180.</p>
+                <span class="msg-time">09:14</span>
+              </div>
+              <div class="msg msg-incoming">
+                <p>Achei um pouco puxado... Não tem desconto?</p>
+                <span class="msg-time">09:15</span>
+              </div>
+              <div class="msg msg-outgoing highlight">
+                <p>Entendo perfeitamente! Esse valor já inclui o raio-x panorâmico que em outros lugares custa R$ 120 por fora. Posso garantir o horário das 09:30 pra você?</p>
+                <span class="msg-time">09:15</span>
+              </div>
+              <div class="msg msg-incoming">
+                <p>Ah, com o raio-x incluso vale a pena! Pode reservar as 09:30!</p>
+                <span class="msg-time">09:16</span>
+              </div>
+              <div class="msg msg-outgoing action">
+                <p>✅ <strong>Agendado com sucesso!</strong> Seu nome já está no sistema. Te mandei a localização aqui: Rua das Palmeiras, 402.</p>
+                <span class="msg-time">09:16</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 2: O Universo Telegram (Seu Time no Bolso) -->
+  <section id="telegram" class="section-showcase dark-accent-bg">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag cyan">LIBERDADE OPERACIONAL TOTAL</span>
+        <h2>Seu Squad de Engenharia e Marketing no Telegram</h2>
+        <p>Você não precisa ficar amarrado a uma mesa. O KONIG transforma um supergrupo do Telegram em um centro de comando com tópicos dedicados por área.</p>
+      </div>
+
+      <div class="telegram-layout">
+        <div class="telegram-mockup">
+          <div class="tg-sidebar">
+            <div class="tg-group-name">🏛️ KONIG Command Center</div>
+            <div class="tg-topics">
+              <button class="tg-topic active" onclick="switchTopic('dev')"># 💻 engenharia-core</button>
+              <button class="tg-topic" onclick="switchTopic('marketing')"># 🚀 marketing-copy</button>
+              <button class="tg-topic" onclick="switchTopic('vendas')"># 🤝 vendas-deals</button>
+              <button class="tg-topic" onclick="switchTopic('onix')"># 💎 onix-governance</button>
+            </div>
+          </div>
+
+          <div class="tg-feed" id="tgFeed">
+            <div class="tg-msg">
+              <div class="tg-author-badge pm">Sarah • Product Manager</div>
+              <p>Requisitos do novo módulo de pagamentos aprovados no PRD. Passando o bastão para o Arquiteto.</p>
+              <span class="tg-timestamp">14:02</span>
+            </div>
+            <div class="tg-msg">
+              <div class="tg-author-badge arch">Alex • Software Architect</div>
+              <p>Contrato de dados e diagrama de componentes desenhado. Sem falhas de idempotência. Dan, pode codar.</p>
+              <span class="tg-timestamp">14:04</span>
+            </div>
+            <div class="tg-msg">
+              <div class="tg-author-badge dev">Dan • Senior Engineer</div>
+              <p>Código implementado com type hints e tratamento de exceção. Elena, teste no Sandbox seguro.</p>
+              <span class="tg-timestamp">14:08</span>
+            </div>
+            <div class="tg-msg success">
+              <div class="tg-author-badge qa">Elena • Staff QA</div>
+              <p>✅ <strong>12 testes unitários executados no Sandbox isolado.</strong> Exit Code 0. Zero violações de AST. Pronto para deploy!</p>
+              <span class="tg-timestamp">14:10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="telegram-points">
+          <div class="tg-card">
+            <h4>🎙️ Instruções por Áudio ou Texto</h4>
+            <p>Mande uma mensagem pelo celular no trânsito ou na academia. O bot roteia a tarefa para o agente certo.</p>
+          </div>
+          <div class="tg-card">
+            <h4>🤖 1 Único Bot para Múltiplos Agentes</h4>
+            <p>Arquitetura <em>Single-Bot Multi-Agent</em>: sem precisar criar 10 bots diferentes. Cada agente fala com sua foto e identidade dentro do tópico certo.</p>
+          </div>
+          <div class="tg-card">
+            <h4>📊 Notificações de Conclusão e Handoff</h4>
+            <p>Você só é notificado quando uma entrega de alto nível é concluída ou quando um Quality Gate reprova e exige sua decisão.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 3: Os 7 Pilares Industriais -->
+  <section id="pilares" class="section-showcase light-bg">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag purple">ENGENHARIA DETERMINÍSTICA</span>
+        <h2>Os 7 Pilares que Destroem Frameworks Comuns</h2>
+        <p>Enquanto outros frameworks sofrem com loops infinitos e códigos quebrados, o KONIG entrega previsibilidade industrial governada pelo <strong>ONIX</strong>.</p>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">01</div>
+          <h3>ONIX Wave Engine</h3>
+          <p>Orquestração baseada em DAGs com ondas paralelas determinísticas e barreiras de sincronia. Fim dos loops caóticos.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-num">02</div>
+          <h3>AST Sandbox Guardrails</h3>
+          <p>Nenhum código gerado executa no seu computador sem análise estática de sintaxe e isolamento estrito de subprocesso.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-num">03</div>
+          <h3>SYNAPSE Context Memory</h3>
+          <p>Compressão semântica seletiva de até 90%, blindando código e requisitos sem estourar janelas de contexto.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-num">04</div>
+          <h3>Staff QA com Teste Real</h3>
+          <p>Elena (QA) não alucina: ela roda asserções de verdade no Sandbox. Se o exit code não for 0, o código não passa.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-num">05</div>
+          <h3>Suporte Universal a IDEs</h3>
+          <p>Sincronizado out-of-the-box com Antigravity, Cursor, Claude Code, OpenAI Codex e VS Code.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-num">06</div>
+          <h3>Auditor Financeiro Real</h3>
+          <p>Monitoramento de tokens e centavos de dólar por execução com limite orçamentário configurável no .env.</p>
+        </div>
+
+        <div class="pillar-card full-width">
+          <div class="pillar-num">07</div>
+          <h3>Omnichannel Nativo (WhatsApp + Telegram)</h3>
+          <p>A ponte definitiva entre os seus agentes no computador e o mundo real no bolso de quem paga e de quem comanda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 4: Quickstart & Terminal Interativo -->
+  <section id="quickstart" class="section-showcase dark-accent-bg">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag emerald">EXPERIMENTE AGORA</span>
+        <h2>Pronto em 1 Minuto no Seu Computador</h2>
+        <p>Clone o projeto, execute o instalador didático e veja o ecossistema ganhar vida.</p>
+      </div>
+
+      <div class="terminal-container">
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="terminal-title">bash — konig-framework/terminal</div>
+        </div>
+        <div class="terminal-body" id="terminalScreen">
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">python install.py</span></div>
+          <div class="t-line t-cyan">👑 KONIG FRAMEWORK v2.0.0 — Powered by ONIX Master Orchestrator</div>
+          <div class="t-line t-green">✔ Python 3.11+ compatível</div>
+          <div class="t-line t-green">✔ Dependências principais instaladas</div>
+          <div class="t-line t-green">✔ Comando global 'konig' registrado</div>
+          <div class="t-line t-green">✔ Sandbox Runtime validado (AST Analysis + Subprocess Isolation OK)</div>
+          <div class="t-line t-green">✔ Squad de Engenharia carregado: .agents (5 agentes)</div>
+          <div class="t-line t-white">🎉 INSTALAÇÃO CONCLUÍDA COM SUCESSO!</div>
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd cursor-blink">konig run .agents full_development_lifecycle</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <span class="logo-symbol">👑</span>
+        <span class="footer-brand">KONIG Framework</span>
+        <p>Enterprise Autonomous Agent Orchestration Engine.<br>Distribuído sob a licença MIT.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="https://github.com/matteuzdev/konig-framework" target="_blank">GitHub</a>
+        <a href="https://github.com/matteuzdev/konig-framework/blob/main/ARCHITECTURE.md" target="_blank">Arquitetura Técnica</a>
+        <a href="https://github.com/matteuzdev/konig-framework/blob/main/LICENSE" target="_blank">Licença MIT</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Ecossistema KONIG. Criado com rigor de engenharia por Hianto.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
