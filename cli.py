@@ -26,10 +26,45 @@ if sys.platform == "win32":
         pass
 
 from core.engine.orchestrator import KonigOrchestrator
+from core.engine.meta_orchestrator import OnixMetaOrchestrator
 from core.engine.squad_loader import SquadLoader
 from core.runtime.sandbox import KonigSandbox
 from channels.telegram import KonigTelegramBridge, TelegramMessage
 from channels.whatsapp import KonigWhatsAppBridge
+
+
+def cmd_onix(args: argparse.Namespace) -> None:
+    """Invoca o ONIX Meta Orchestrator para arquitetar e despachar squads sob demanda."""
+    goal = args.goal
+    squad_type = args.type or "engineering"
+
+    print("\n🔮 ONIX META ORCHESTRATOR — Ativando Consciência Estratégica...")
+    print(f"🎯 Missão: '{goal}'")
+    print(f"🧬 Domínio Operacional: [{squad_type.upper()}]")
+
+    meta = OnixMetaOrchestrator()
+    blueprint = meta.generate_squad_blueprint(squad_type, goal)
+    print(f"\n🏛️ Blueprint Sintetizado por ONIX: [{blueprint['name']}]")
+    print(f"   • Agentes convocados: {len(blueprint['agents'])}")
+    for k, a in blueprint['agents'].items():
+        print(f"     └─ {a['name']} ({a['role']})")
+
+    orchestrator = KonigOrchestrator(".agents")
+    for key, a_data in blueprint['agents'].items():
+        from core.engine.agent import KonigAgent
+        agent_obj = KonigAgent(
+            name=a_data["name"],
+            role=a_data["role"],
+            signature=f"[{a_data['name']} - {a_data['role']}]",
+            goal=a_data.get("goal", ""),
+            skills=a_data.get("skills", [])
+        )
+        orchestrator.register_agent(agent_obj)
+
+    wf = meta.build_custom_workflow(f"wf_{blueprint['name']}", blueprint, goal)
+    print("\n🚀 Despachando DAG através do Kahn Engine em Waves com Gates determinísticos...")
+    summary = orchestrator.run_workflow(wf)
+    print(f"\n✨ ONIX: Missão '{goal}' orquestrada e homologada com sucesso.")
 
 
 def cmd_run(args: argparse.Namespace) -> None:
@@ -170,6 +205,12 @@ def main():
         description="KONIG Agentic Framework CLI — Motor industrial de orquestração de IA"
     )
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
+
+    # onix
+    p_onix = subparsers.add_parser("onix", help="Invoca o ONIX Meta Orchestrator para arquitetar e despachar squads autônomos")
+    p_onix.add_argument("goal", help="Objetivo ou missão a ser executada")
+    p_onix.add_argument("--type", "-t", default="engineering", help="Domínio do squad: engineering, marketing, sales, strategy")
+    p_onix.set_defaults(func=cmd_onix)
 
     # run
     p_run = subparsers.add_parser("run", help="Executa um workflow de squad")

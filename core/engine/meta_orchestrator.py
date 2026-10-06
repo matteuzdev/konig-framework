@@ -114,9 +114,9 @@ class KonigMetaOrchestrator:
                 "agents": {
                     "pm": {
                         "name": "Alice",
-                        "role": "Lead Product Manager",
-                        "goal": "Definir requisitos claros, escopo e PRD detalhado.",
-                        "skills": ["prd_writing", "scope_definition"],
+                        "role": "Lead Product Manager & Brand Topology Architect",
+                        "goal": "Definir requisitos claros, DNA de marca, arquétipo comercial e PRD detalhado.",
+                        "skills": ["brand_topology", "prd_writing", "scope_definition"],
                     },
                     "architect": {
                         "name": "Bob",
@@ -125,22 +125,22 @@ class KonigMetaOrchestrator:
                         "skills": ["system_design", "api_design"],
                     },
                     "designer": {
-                        "name": "Chloe",
-                        "role": "Lead UI/UX Pro-Max Designer",
-                        "goal": "Criar interfaces visualmente impactantes, responsivas e anti-genéricas.",
-                        "skills": ["design_systems", "tailwind", "ux_interaction"],
+                        "name": "Carol",
+                        "role": "Lead UI/UX Adaptive Designer",
+                        "goal": "Criar sistemas visuais camaleônicos subordinados ao branding do cliente e sem dogmatismo de nicho único.",
+                        "skills": ["brand_adaptation", "design_systems", "semantic_tokens", "wcag_accessibility"],
                     },
                     "engineer": {
-                        "name": "David",
-                        "role": "Senior Fullstack Engineer",
-                        "goal": "Implementar código limpo, testável e de alta performance.",
-                        "skills": ["python", "typescript", "fastapi", "clean_code"],
+                        "name": "Dan",
+                        "role": "Senior Fullstack Software Engineer",
+                        "goal": "Implementar código limpo, testável, de alta performance e com autonomia de contestação técnica (Challenge Loop).",
+                        "skills": ["python", "typescript", "fastapi", "clean_code", "spec_challenge"],
                     },
                     "qa": {
                         "name": "Elena",
-                        "role": "QA & Test Automation Engineer",
-                        "goal": "Blindar o sistema contra falhas, testar edge cases e validar cobertura.",
-                        "skills": ["e2e_testing", "pytest", "security_audit"],
+                        "role": "Staff QA & Homologation Engineer",
+                        "goal": "Blindar o sistema contra falhas, testar edge cases e validar conformidade contratual com o PRD.",
+                        "skills": ["e2e_testing", "pytest", "security_audit", "contract_challenge"],
                     }
                 }
             }
