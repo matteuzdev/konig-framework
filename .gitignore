@@ -32,3 +32,6 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# Local Sites, Apps & Projects (Keep out of public framework repo)
+site/
