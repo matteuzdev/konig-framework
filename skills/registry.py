@@ -91,3 +91,10 @@ GLOBAL_SKILL_REGISTRY.register(
         estimated_token_cost=50
     )
 )
+
+# Skills Canônicas Avançadas (Eugene Schwartz & Jay Abraham)
+from skills.market_safari_skill import MarketSafariMinerSkill
+from skills.backend_ltv_skill import BackendLTVArchitectSkill
+
+GLOBAL_SKILL_REGISTRY.register(MarketSafariMinerSkill())
+GLOBAL_SKILL_REGISTRY.register(BackendLTVArchitectSkill())

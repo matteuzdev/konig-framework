@@ -379,6 +379,48 @@ class KonigOrchestrator:
                 f"HANDOFF_SIGNATURE: {agent.signature}"
             )
 
+        # Eugene Schwartz (Market Intelligence & ICP Hunter)
+        elif any(k in target_str for k in ("eugene", "schwartz", "safari", "icp_hunter", "awareness")):
+            return (
+                f"# Dossiê de Inteligência de Mercado & Diagnóstico de ICP (Eugene Schwartz)\n"
+                f"**Assinado por:** {agent.signature}\n\n"
+                f"## 1. A Ferida Aberta & Desejo de Massa Pré-Existente\n"
+                f"- Dor Visceral do Operador: O dono passa o dia atendendo e o celular apitando com clientes querendo saber horários. Se para o corte/serviço, perde o ritmo; se não responde, perde a venda.\n"
+                f"- Força Motriz Primária: Fuga da Dor e exaustão operacional diária (converte 4x mais rápido do que ambição abstrata).\n\n"
+                f"## 2. Diagnóstico de Nível de Consciência (Schwartz)\n"
+                f"- Nível Diagnosticado: Nível 2 (Consciente do Problema) / Nível 3 (Consciente da Solução).\n"
+                f"- O cliente sabe que o WhatsApp é um caos, mas tem aversão a apps pesados ou mensalidades caras que os clientes dele não usam.\n\n"
+                f"## 3. Estágio de Sofisticação de Mercado & Mecanismo Único\n"
+                f"- Sofisticação do Mercado: Estágio 3 (Ceticismo severo contra a promessa vazia de 'site bonito').\n"
+                f"- Mecanismo Único Formulado: 'Tool de Agendamento em 3 Toques Integrada ao WhatsApp (Sem Aplicativo)'.\n"
+                f"- Explicação que desarma o ceticismo: O cliente escolhe na página e o agendamento empacotado cai pronto no WhatsApp do dono sem app e sem fricção.\n\n"
+                f"## 4. Caderno de Vocabulário Cru (Verbatim Safari)\n"
+                f"- Palavras Proibidas (Jargão de Agência): leads, tráfego pago, branding, pixel, CTR, funil de conversão.\n"
+                f"- Palavras Magnéticas (Nativas): cadeira vazia, bolo no horário, tempo no zap, R$ 699 sem mensalidade, dinheiro no bolso.\n"
+                f"HANDOFF_SIGNATURE: {agent.signature}"
+            )
+
+        # Jay Abraham (LTV & Backend Growth Architect)
+        elif any(k in target_str for k in ("jay", "abraham", "ltv", "upsell", "preeminence")):
+            return (
+                f"# Dossiê de Arquitetura de LTV & Esteira de Ascensão (Jay Abraham)\n"
+                f"**Assinado por:** {agent.signature}\n\n"
+                f"## 1. O Papel Estratégico do Front-End de R$ 699\n"
+                f"- O front-end de R$ 699 é o veículo de financiamento de aquisição com custo zero (Breakeven Front-End) e geração de confiança máxima.\n"
+                f"- O cliente paga pelo setup, e o lucro composto real vem dos multiplicadores 2 e 3 (Ticket Médio e Frequência de Recompra).\n\n"
+                f"## 2. A Heurística do Próximo Problema Lógico\n"
+                f"- Problema Resolvido pelo Front-End: Agendamento automático sem perda de tempo.\n"
+                f"- Novo Problema Revelado (Dia 7 a 14): Clientes esquecem do horário e faltam (no-show de 20% a 30%), deixando a cadeira vazia.\n"
+                f"- Upsell Imediato (No-Show Killer): Automação de lembrete com confirmação no WhatsApp 2h antes (R$ 197/mês recorrente).\n\n"
+                f"## 3. Mineração de Ativos Ocultos (Risk-Free Contingency Deal)\n"
+                f"- Ativo Dormindo no Cliente: 300 a 800 contatos no WhatsApp que não compram há mais de 60 dias.\n"
+                f"- Oferta de Contingência: Campanha de reativação com IA com divisão de lucros (30% dos clientes que voltarem) ou taxa fixa de R$ 497.\n\n"
+                f"## 4. Projeção Econômica de LTV para a Empresa\n"
+                f"- A cada 20 clientes de R$ 699 (R$ 13.980 imediatos), 35% ativam o upsell recorrente (MRR de R$ 1.379/mês).\n"
+                f"- Em 6 meses, a base gera mais de R$ 8.000/mês em receita recorrente previsível com esforço de entrega marginal zero.\n"
+                f"HANDOFF_SIGNATURE: {agent.signature}"
+            )
+
         # CMO / Marketing Strategy
         elif "cmo" in role_lower or "market-strategy" in task.id.lower() or "marketing" in role_lower:
             return (
