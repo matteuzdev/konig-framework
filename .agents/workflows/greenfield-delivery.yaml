@@ -1,6 +1,6 @@
 name: "greenfield-delivery"
-description: "Fluxo de ponta a ponta para construção de software do zero (Inspirado no KONIG greenfield-fullstack-workflow)"
-version: "2.0.0"
+description: "Fluxo enterprise ponta a ponta com gates determinísticos e Challenge Loops bidirecionais (Inspirado no KONIG e auditado pelo ARC)"
+version: "2.1.0"
 
 steps:
   - id: step_01_prd
@@ -16,6 +16,9 @@ steps:
     template: "architecture-template.md"
     gate: "architecture-gate-checklist"
     depends_on: ["step_01_prd"]
+    challenge_channel:
+      target_agent: "pm"
+      trigger: "inconsistencia_escopo_ou_inviabilidade"
 
   - id: step_03_ui_ux
     task: "design-ui-ux-pro-max"
@@ -23,12 +26,19 @@ steps:
     template: "ui-ux-tokens-template.md"
     gate: "ui-ux-pro-max-gate-checklist"
     depends_on: ["step_01_prd"]
+    challenge_channel:
+      target_agent: "pm"
+      trigger: "conflito_topologia_marca_ou_persona"
 
   - id: step_04_implementation
     task: "implement-fullstack-core"
     agent: "engineer"
     gate: "code-quality-gate-checklist"
     depends_on: ["step_02_architecture", "step_03_ui_ux"]
+    challenge_channel:
+      target_agents: ["architect", "ui_ux_designer"]
+      trigger: "challenge-spec"
+      action: "rejeicao_com_evidencias_e_ajuste_de_contrato"
 
   - id: step_05_qa
     task: "run-qa-homologation"
@@ -36,3 +46,7 @@ steps:
     template: "qa-report-template.md"
     gate: "qa-gate-checklist"
     depends_on: ["step_04_implementation"]
+    challenge_channel:
+      target_agents: ["engineer", "pm"]
+      trigger: "challenge-contract"
+      action: "devolucao_imediata_com_relatorio_de_falha"

@@ -19,6 +19,7 @@ class PRDGate(KonigGate):
     min_score: float = 0.75
     checklist: List[str] = [
         "objetivo",
+        "marca",
         "requisitos funcionais",
         "requisitos não funcionais",
         "critérios de aceite",
@@ -37,7 +38,7 @@ class PRDGate(KonigGate):
             issues.append("PRD muito superficial (menos de 120 palavras).")
 
         verdict = GateVerdict.APPROVED if score >= self.min_score else GateVerdict.REJECTED
-        feedback = "PRD aprovado com especificações completas." if verdict == GateVerdict.APPROVED else (
+        feedback = "PRD aprovado com especificações completas e alinhamento de marca." if verdict == GateVerdict.APPROVED else (
             f"PRD reprovado. Ajuste os seguintes pontos: {', '.join(issues)}"
         )
 
@@ -85,11 +86,11 @@ class ArchitectureGate(KonigGate):
 
 class UIUXGate(KonigGate):
     """
-    O Gate de Design Escandaloso / Anti-Genérico.
-    Reprova designs amadores, sem hierarquia, sem micro-interações ou sem tokens visuais definidos.
+    O Gate de Interface Adaptativa e Anti-Genérico.
+    Reprova designs amadores, sem hierarquia, sem alinhamento de marca ou sem tokens semânticos definidos.
     """
     name: str = "ui_ux_gate"
-    description: str = "Garante padrão visual premium, anti-default, responsivo e com micro-interações"
+    description: str = "Garante padrão visual adaptado ao branding, anti-default, acessível e com micro-interações intencionais"
     min_score: float = 0.80
     checklist: List[str] = [
         "tipografia",
@@ -111,14 +112,18 @@ class UIUXGate(KonigGate):
             score -= 0.3
             issues.append("Reprovado por mediocridade visual: layout declarado como básico/simples.")
 
-        # Bonifica design tokens ricos (HSL, dark mode, glassmorphism, micro-animações, Tailwind/CSS variables)
-        bonus_signals = ["glassmorphism", "tokens", "dark mode", "gradiente", "hover", "transition", "animação", "curated", "hsl"]
+        # Bonifica design tokens ricos, identidade de marca, acessibilidade e micro-interações
+        bonus_signals = [
+            "branding", "arquétipo", "tokens", "semântic", "acessibilidade", 
+            "wcag", "dark mode", "hover", "transition", "animação", "curated", 
+            "hsl", "superfície", "contraste"
+        ]
         bonus_count = sum(1 for signal in bonus_signals if signal in output_lower)
-        score += min(0.2, bonus_count * 0.05)
+        score += min(0.2, bonus_count * 0.04)
 
         verdict = GateVerdict.APPROVED if score >= self.min_score else GateVerdict.REJECTED
         feedback = (
-            "Design aprovado no padrão visual Pro-Max com alto refinamento de UI/UX."
+            "Design aprovado no padrão visual de elite, alinhado ao branding e com alto refinamento de UI/UX."
             if verdict == GateVerdict.APPROVED
             else f"Design reprovado pelo Gate de Interface. O produto não pode parecer um MVP genérico: {', '.join(issues)}"
         )
