@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light">
+  <!-- Scroll Progress & Cursor Glow Dinâmico (Padrão AIOX Engine) -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
 
   <!-- Glow Background Canvas / Ambience -->
   <div class="ambient-glow" aria-hidden="true"></div>
@@ -155,14 +158,20 @@
           </div>
         </div>
 
-        <!-- Grafo Visual de Waves com SVG Animado -->
-        <div class="dag-graph-canvas">
-          <svg class="dag-flow-svg" viewBox="0 0 900 120" preserveAspectRatio="none">
-            <line x1="160" y1="60" x2="310" y2="35" class="dag-link-line" id="link-1-2a" />
-            <line x1="160" y1="60" x2="310" y2="85" class="dag-link-line" id="link-1-2b" />
-            <line x1="490" y1="35" x2="620" y2="60" class="dag-link-line" id="link-2a-3" />
-            <line x1="490" y1="85" x2="620" y2="60" class="dag-link-line" id="link-2b-3" />
-            <line x1="740" y1="60" x2="820" y2="60" class="dag-link-line" id="link-3-4" />
+        <!-- Grafo Visual de Waves com Conexões Dinâmicas Bézier -->
+        <div class="dag-graph-canvas" id="dagCanvas">
+          <svg class="dag-flow-svg" id="dagSvgOverlay">
+            <defs>
+              <linearGradient id="wireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0D9488" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="#0D9488" stop-opacity="0.9" />
+              </linearGradient>
+            </defs>
+            <path id="wire-1-2a" class="dag-wire" />
+            <path id="wire-1-2b" class="dag-wire" />
+            <path id="wire-2a-3" class="dag-wire" />
+            <path id="wire-2b-3" class="dag-wire" />
+            <path id="wire-3-4" class="dag-wire" />
           </svg>
 
           <div class="dag-nodes-row">
@@ -170,41 +179,49 @@
             <div class="dag-node-box" id="node-wave-1">
               <div class="node-badge">Wave 1</div>
               <div class="node-actor">Sarah • PM</div>
-              <div class="node-task">PRD & Requisitos</div>
-              <div class="node-status-bar"></div>
+              <div class="node-task">PRD & Requisitos Formais</div>
+              <div class="node-metric" id="metric-1">Aguardando disparo</div>
+              <div class="node-port port-out" id="port-1-out"></div>
             </div>
 
             <!-- Nodes Wave 2: Paralelos -->
             <div class="dag-parallel-cluster">
-              <div class="dag-node-box" id="node-wave-2a">
-                <div class="node-badge parallel">Wave 2A</div>
+              <div class="dag-node-box parallel-node" id="node-wave-2a">
+                <div class="node-port port-in" id="port-2a-in"></div>
+                <div class="node-badge parallel">Wave 2A • Paralela</div>
                 <div class="node-actor">Alex • Arquiteto</div>
-                <div class="node-task">Contratos & APIs</div>
-                <div class="node-status-bar"></div>
+                <div class="node-task">Contratos OpenAPI & DB</div>
+                <div class="node-metric" id="metric-2a">Em espera</div>
+                <div class="node-port port-out" id="port-2a-out"></div>
               </div>
 
-              <div class="dag-node-box" id="node-wave-2b">
-                <div class="node-badge parallel">Wave 2B</div>
+              <div class="dag-node-box parallel-node" id="node-wave-2b">
+                <div class="node-port port-in" id="port-2b-in"></div>
+                <div class="node-badge parallel">Wave 2B • Paralela</div>
                 <div class="node-actor">Carol • UI/UX</div>
-                <div class="node-task">Design Tokens</div>
-                <div class="node-status-bar"></div>
+                <div class="node-task">Design Tokens & WCAG</div>
+                <div class="node-metric" id="metric-2b">Em espera</div>
+                <div class="node-port port-out" id="port-2b-out"></div>
               </div>
             </div>
 
             <!-- Node 3: Dev -->
             <div class="dag-node-box" id="node-wave-3">
+              <div class="node-port port-in" id="port-3-in"></div>
               <div class="node-badge">Wave 3</div>
               <div class="node-actor">Dan • Dev Sênior</div>
-              <div class="node-task">Código Tipado</div>
-              <div class="node-status-bar"></div>
+              <div class="node-task">Implementação Fullstack</div>
+              <div class="node-metric" id="metric-3">Em espera</div>
+              <div class="node-port port-out" id="port-3-out"></div>
             </div>
 
             <!-- Node 4: QA -->
             <div class="dag-node-box" id="node-wave-4">
+              <div class="node-port port-in" id="port-4-in"></div>
               <div class="node-badge">Wave 4</div>
               <div class="node-actor">Elena • QA</div>
               <div class="node-task">Sandbox Test (Exit 0)</div>
-              <div class="node-status-bar"></div>
+              <div class="node-metric" id="metric-4">Em espera</div>
             </div>
           </div>
         </div>

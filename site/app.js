@@ -48,16 +48,56 @@ window.addEventListener('DOMContentLoaded', () => {
   initCounters();
   initSpotlights();
   switchTgChannel('core');
+  setTimeout(updateAllDagWires, 100);
+});
+
+window.addEventListener('load', () => {
+  updateAllDagWires();
+  setTimeout(updateAllDagWires, 250);
 });
 
 // ==============================================================================
-// 3. SIMULADOR DO ONIX WAVE ENGINE (KRONOS)
+// 3. TRAÇADO DINÂMICO DE CURVAS BÉZIER DO DAG (KRONOS)
 // ==============================================================================
+function drawDagWire(wireId, startPortId, endPortId) {
+  const canvas = document.getElementById('dagCanvas');
+  const wire = document.getElementById(wireId);
+  const pStart = document.getElementById(startPortId);
+  const pEnd = document.getElementById(endPortId);
+
+  if (!canvas || !wire || !pStart || !pEnd) return;
+
+  const canvasRect = canvas.getBoundingClientRect();
+  const rStart = pStart.getBoundingClientRect();
+  const rEnd = pEnd.getBoundingClientRect();
+
+  // Coordenadas relativas ao canvas com ancoragem central precisa
+  const x1 = (rStart.left + rStart.right) / 2 - canvasRect.left;
+  const y1 = (rStart.top + rStart.bottom) / 2 - canvasRect.top;
+  const x2 = (rEnd.left + rEnd.right) / 2 - canvasRect.left;
+  const y2 = (rEnd.top + rEnd.bottom) / 2 - canvasRect.top;
+
+  const dx = Math.max(Math.abs(x2 - x1) * 0.5, 40);
+  const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+  wire.setAttribute('d', d);
+}
+
+function updateAllDagWires() {
+  drawDagWire('wire-1-2a', 'port-1-out', 'port-2a-in');
+  drawDagWire('wire-1-2b', 'port-1-out', 'port-2b-in');
+  drawDagWire('wire-2a-3', 'port-2a-out', 'port-3-in');
+  drawDagWire('wire-2b-3', 'port-2b-out', 'port-3-in');
+  drawDagWire('wire-3-4', 'port-3-out', 'port-4-in');
+}
+
+window.addEventListener('resize', updateAllDagWires);
+
 let isSimulating = false;
 
 function runDagSimulation() {
   if (isSimulating) return;
   isSimulating = true;
+  updateAllDagWires();
 
   const led = document.getElementById('simLed');
   const stateText = document.getElementById('simStateText');
@@ -76,49 +116,70 @@ function runDagSimulation() {
   const node3 = document.getElementById('node-wave-3');
   const node4 = document.getElementById('node-wave-4');
 
-  const l1_2a = document.getElementById('link-1-2a');
-  const l1_2b = document.getElementById('link-1-2b');
-  const l2a_3 = document.getElementById('link-2a-3');
-  const l2b_3 = document.getElementById('link-2b-3');
-  const l3_4 = document.getElementById('link-3-4');
+  const w1_2a = document.getElementById('wire-1-2a');
+  const w1_2b = document.getElementById('wire-1-2b');
+  const w2a_3 = document.getElementById('wire-2a-3');
+  const w2b_3 = document.getElementById('wire-2b-3');
+  const w3_4 = document.getElementById('wire-3-4');
+
+  const m1 = document.getElementById('metric-1');
+  const m2a = document.getElementById('metric-2a');
+  const m2b = document.getElementById('metric-2b');
+  const m3 = document.getElementById('metric-3');
+  const m4 = document.getElementById('metric-4');
 
   // Wave 1: PM
   node1.className = 'dag-node-box running';
+  m1.innerText = 'Refinando requisitos...';
   log.innerHTML += `<div class="log-line text-white">[WAVE 1] Sarah (PM) refinando requisitos e gerando PRD formal...</div>`;
 
   setTimeout(() => {
     node1.className = 'dag-node-box completed';
-    l1_2a.classList.add('active');
-    l1_2b.classList.add('active');
-    log.innerHTML += `<div class="log-line text-green">[WAVE 1] Gate de PRD aprovado (Score: 1.0). Barreira de sincronização liberada.</div>`;
+    m1.innerText = '✔ PRD Aprovado (Score 1.0)';
+    w1_2a.classList.add('active');
+    w1_2b.classList.add('active');
+    log.innerHTML += `<div class="log-line text-green">[WAVE 1] Gate de PRD aprovado. Handoff propagado para Wave 2.</div>`;
 
     // Wave 2: Paralela (Alex + Carol)
-    node2a.className = 'dag-node-box running';
-    node2b.className = 'dag-node-box running';
+    node2a.className = 'dag-node-box parallel-node running';
+    node2b.className = 'dag-node-box parallel-node running';
+    m2a.innerText = 'Modelando endpoints...';
+    m2b.innerText = 'Gerando tokens...';
     log.innerHTML += `<div class="log-line text-cyan">[WAVE 2 PARALELA] Alex (Arquiteto) & Carol (UI/UX) executando em paralelo...</div>`;
 
     setTimeout(() => {
-      node2a.className = 'dag-node-box completed';
-      node2b.className = 'dag-node-box completed';
-      l2a_3.classList.add('active');
-      l2b_3.classList.add('active');
+      node2a.className = 'dag-node-box parallel-node completed';
+      node2b.className = 'dag-node-box parallel-node completed';
+      m2a.innerText = '✔ OpenAPI Homologada';
+      m2b.innerText = '✔ Design System Pronto';
+      w1_2a.className = 'dag-wire completed';
+      w1_2b.className = 'dag-wire completed';
+      w2a_3.classList.add('active');
+      w2b_3.classList.add('active');
       log.innerHTML += `<div class="log-line text-green">[WAVE 2] Contratos de API e Design Tokens homologados. Handoff enviado ao time dev.</div>`;
 
       // Wave 3: Dev
       node3.className = 'dag-node-box running';
+      m3.innerText = 'Compilando TypeScript...';
       log.innerHTML += `<div class="log-line text-white">[WAVE 3] Dan (Engenheiro) implementando código de produção com tipagem estrita...</div>`;
 
       setTimeout(() => {
         node3.className = 'dag-node-box completed';
-        l3_4.classList.add('active');
+        m3.innerText = '✔ Build Concluído (0 errors)';
+        w2a_3.className = 'dag-wire completed';
+        w2b_3.className = 'dag-wire completed';
+        w3_4.classList.add('active');
         log.innerHTML += `<div class="log-line text-green">[WAVE 3] Código compilado e submetido para validação formal em Sandbox.</div>`;
 
         // Wave 4: QA Sandbox
         node4.className = 'dag-node-box running';
+        m4.innerText = 'Executando asserções AST...';
         log.innerHTML += `<div class="log-line text-cyan">[WAVE 4] Elena (QA) executando suíte de asserções no Sandbox isolado...</div>`;
 
         setTimeout(() => {
           node4.className = 'dag-node-box completed';
+          m4.innerText = '✔ 14/14 Testes Passaram';
+          w3_4.className = 'dag-wire completed';
           log.innerHTML += `<div class="log-line text-green">✔ [WAVE 4] 100% dos testes aprovados no KonigSandbox (Exit Code: 0 | AST: Seguro).</div>`;
           log.innerHTML += `<div class="log-line text-white">🎉 [ONIX] Ciclo concluído com sucesso. Telemetria: 0.14s | Custo: $0.0031 USD.</div>`;
           stateText.innerText = 'Ciclo Finalizado com Sucesso (Exit Code 0)';
@@ -135,10 +196,18 @@ function runDagSimulation() {
 
 function resetDagSimulation() {
   const nodes = document.querySelectorAll('.dag-node-box');
-  nodes.forEach(n => n.className = 'dag-node-box');
+  nodes.forEach(n => {
+    n.className = n.classList.contains('parallel-node') ? 'dag-node-box parallel-node' : 'dag-node-box';
+  });
 
-  const links = document.querySelectorAll('.dag-link-line');
-  links.forEach(l => l.className = 'dag-link-line');
+  const wires = document.querySelectorAll('.dag-wire');
+  wires.forEach(w => w.className = 'dag-wire');
+
+  document.getElementById('metric-1').innerText = 'Aguardando disparo';
+  document.getElementById('metric-2a').innerText = 'Em espera';
+  document.getElementById('metric-2b').innerText = 'Em espera';
+  document.getElementById('metric-3').innerText = 'Em espera';
+  document.getElementById('metric-4').innerText = 'Em espera';
 
   const led = document.getElementById('simLed');
   led.classList.remove('active');
@@ -152,6 +221,7 @@ function resetDagSimulation() {
   const btn = document.getElementById('btnRunSim');
   btn.disabled = false;
   isSimulating = false;
+  updateAllDagWires();
 }
 
 // ==============================================================================
@@ -457,4 +527,24 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+// ==============================================================================
+// 9. CURSOR GLOW & SCROLL PROGRESS (PADRÃO AIOX / SYNKRA ENGINE)
+// ==============================================================================
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progressEl = document.getElementById('scrollProgress');
+  if (progressEl && docHeight > 0) {
+    progressEl.style.width = `${(scrollTop / docHeight) * 100}%`;
+  }
+});
+
+const cursorGlow = document.getElementById('cursorGlow');
+if (cursorGlow) {
+  window.addEventListener('mousemove', (e) => {
+    cursorGlow.style.left = `${e.clientX}px`;
+    cursorGlow.style.top = `${e.clientY}px`;
+  });
 }

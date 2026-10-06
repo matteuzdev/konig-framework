@@ -83,6 +83,35 @@ body {
   position: relative;
 }
 
+/* ============ SCROLL PROGRESS BAR (Padrão AIOX Engine) ============ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  z-index: 9999;
+  background: linear-gradient(90deg, var(--accent-teal), #22C55E, #3B82F6);
+  box-shadow: 0 0 12px var(--accent-teal);
+  transition: width 0.08s ease-out;
+}
+
+/* ============ CURSOR GLOW (Padrão AIOX Engine) ============ */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--spotlight-color), transparent 65%);
+  transition: opacity 0.3s ease;
+  mix-blend-mode: screen;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Space Grotesk', sans-serif;
   color: var(--text-title);
@@ -549,12 +578,14 @@ body.theme-dark .site-header {
 
 .dag-graph-canvas {
   position: relative;
-  padding: 30px 10px 40px;
+  padding: 40px 20px;
   background: var(--bg-subtle);
   border: 1px solid var(--border-default);
-  border-radius: 8px;
-  margin-bottom: 20px;
-  min-height: 220px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
 }
 
 .dag-flow-svg {
@@ -565,22 +596,31 @@ body.theme-dark .site-header {
   height: 100%;
   pointer-events: none;
   z-index: 1;
+  overflow: visible;
 }
 
-.dag-link-line {
+.dag-wire {
   stroke: var(--border-hover);
   stroke-width: 2;
-  stroke-dasharray: 6 4;
-  transition: stroke 0.3s;
+  fill: none;
+  stroke-dasharray: 6 5;
+  transition: stroke 0.3s, stroke-width 0.3s;
 }
 
-.dag-link-line.active {
+.dag-wire.active {
   stroke: var(--accent-teal);
+  stroke-width: 2.5;
   stroke-dasharray: 8 4;
-  animation: dashFlow 1s linear infinite;
+  animation: wirePulse 0.8s linear infinite;
 }
 
-@keyframes dashFlow {
+.dag-wire.completed {
+  stroke: var(--accent-teal);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+
+@keyframes wirePulse {
   to { stroke-dashoffset: -24; }
 }
 
@@ -588,44 +628,95 @@ body.theme-dark .site-header {
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  width: 100%;
+  gap: 32px;
 }
 
 .dag-node-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 16px;
-  width: 170px;
+  border-radius: 10px;
+  padding: 18px 20px;
+  width: 190px;
   text-align: center;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
   position: relative;
 }
 
 .dag-node-box.running {
   border-color: var(--accent-blue);
-  box-shadow: 0 0 12px rgba(37, 99, 235, 0.25);
-  transform: scale(1.03);
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
 }
 
 .dag-node-box.completed {
   border-color: var(--accent-teal);
-  box-shadow: 0 0 12px rgba(13, 148, 136, 0.25);
+  box-shadow: 0 0 16px rgba(13, 148, 136, 0.3);
 }
 
-.node-badge {
+/* Portas de Hardware nos Cards */
+.node-port {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-hover);
+  transform: translateY(-50%);
+  z-index: 3;
+  transition: all 0.3s;
+}
+
+.port-out {
+  right: -6px;
+}
+
+.port-in {
+  left: -6px;
+}
+
+.dag-node-box.running .node-port {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px var(--accent-blue);
+}
+
+.dag-node-box.completed .node-port {
+  border-color: var(--accent-teal);
+  background: var(--accent-teal);
+  box-shadow: 0 0 8px var(--accent-teal);
+}
+
+.node-metric {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--bg-subtle);
-  color: var(--text-subtle);
-  display: inline-block;
-  margin-bottom: 8px;
+  color: var(--text-light);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-default);
+}
+
+.dag-node-box.running .node-metric {
+  color: var(--accent-blue);
+}
+
+.dag-node-box.completed .node-metric {
+  color: var(--accent-teal);
+  font-weight: 600;
+}
+
+.dag-parallel-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.parallel-node {
+  width: 190px;
 }
 
 .node-badge.parallel {
