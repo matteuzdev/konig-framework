@@ -44,26 +44,36 @@ No coração do framework opera o **ONIX Master Orchestrator**, o regente suprem
 
 ---
 
-## 🚀 Instalação Rápida em 3 Passos
+## 🚀 Instalação Rápida
 
-O KONIG conta com um assistente de instalação visual, didático e automatizado:
+### Opção A: Ultra-rápida via `uv` (Recomendado ⚡ 100x mais rápido)
+O **`uv`** (gerenciador de pacotes em Rust da Astral) cria o ambiente isolado e instala o KONIG em menos de 2 segundos:
 
 ```bash
 # 1. Clone o repositório
 git clone https://github.com/matteuzdev/konig-framework.git
 cd konig-framework
 
-# 2. Execute o assistente de instalação interativo
-python install.py
+# 2. Crie a venv e instale em modo editável com uv
+uv venv
+uv pip install -e .
 
-# 3. Explore os squads e comandos disponíveis
+# 3. Explore os squads disponíveis
 konig list
 ```
 
-> **Dica**: Caso prefira instalação silenciosa e sem perguntas, execute:
-> ```bash
-> python install.py --yes
-> ```
+> **Dica Windows (PowerShell)**: No PowerShell tradicional, use `;` para encadear comandos em uma única linha em vez de `&&` (ex: `uv venv; uv pip install -e .; konig list`).
+
+### Opção B: Assistente de Instalação Interativo (`install.py`)
+O KONIG possui um instalador assistido que detecta o **uv** automaticamente (com fallback transparente para pip), cria o `.env`, valida as permissões e roda o Smoke Test do ONIX:
+
+```bash
+# Executa o instalador interativo
+python install.py
+
+# Ou modo automático não-interativo:
+python install.py --yes
+```
 
 ---
 

@@ -49,7 +49,7 @@ class ASTSecurityAnalyzer(ast.NodeVisitor):
         "eval", "exec", "__import__", "compile"
     }
     FORBIDDEN_MODULES = {
-        "ctypes", "winreg", "_winapi", "pty"
+        "ctypes", "winreg", "_winapi", "pty", "subprocess"
     }
 
     def __init__(self):
@@ -88,9 +88,13 @@ class ASTSecurityAnalyzer(ast.NodeVisitor):
                         line_number=node.lineno
                     )
                 )
-        # Detecção de os.system ou subprocess destrutivo
+        # Detecção de os.system, subprocess ou chamadas destrutivas
         elif isinstance(node.func, ast.Attribute):
-            if node.func.attr in ("system", "popen", "spawn"):
+            dangerous_attrs = (
+                "system", "popen", "spawn", "Popen", "run", "call",
+                "check_output", "check_call", "fork", "kill", "exit", "_exit"
+            )
+            if node.func.attr in dangerous_attrs:
                 self.violations.append(
                     SecurityViolation(
                         rule="DANGEROUS_SYSTEM_CALL",

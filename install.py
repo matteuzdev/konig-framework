@@ -92,13 +92,27 @@ def install_dependencies(root: Path, silent: bool = False) -> bool:
         fail("Arquivo requirements.txt não encontrado!")
         return False
 
-    # Tenta python -m pip primeiro, depois pip direto do sistema
+    uv_path = shutil.which("uv")
+    installed = False
+
+    # 1. Tenta instalar com uv (100x mais rápido e resiliente)
+    if uv_path:
+        info("⚡ 'uv' (Astral Rust package manager) detectado no sistema! Utilizando modo ultra-rápido...")
+        uv_cmd = [uv_path, "pip", "install", "-r", str(req_file), "-e", str(root), "--python", sys.executable]
+        try:
+            info(f"Executando: {' '.join(uv_cmd)}")
+            res = subprocess.run(uv_cmd, capture_output=True, text=True, check=True)
+            ok("Dependências e comando global 'konig' instalados com sucesso via uv!")
+            return True
+        except Exception as e:
+            warn(f"Tentativa com uv retornou aviso: {e}. Tentando fallback clássico...")
+
+    # 2. Fallback clássico: pip / python -m pip
     pip_cmds = [
         [sys.executable, "-m", "pip", "install", "-r", str(req_file)],
         ["pip", "install", "-r", str(req_file)],
     ]
 
-    installed = False
     for cmd in pip_cmds:
         try:
             info(f"Tentando: {' '.join(cmd)}")
@@ -108,7 +122,7 @@ def install_dependencies(root: Path, silent: bool = False) -> bool:
                 text=True,
                 check=True
             )
-            ok("Dependências principais instaladas com sucesso.")
+            ok("Dependências principais instaladas com sucesso via pip.")
             installed = True
             break
         except Exception as e:
@@ -116,19 +130,16 @@ def install_dependencies(root: Path, silent: bool = False) -> bool:
 
     if not installed:
         warn("Não foi possível executar 'pip' automaticamente neste ambiente.")
-        info("Você pode instalar manualmente executando: pip install -r requirements.txt")
+        info("Recomendado: instale com uv (https://astral.sh/uv) ou configure seu ambiente Python.")
 
-    # Instala o pacote em modo editável para habilitar o comando global `konig`
-    setup_file = root / "setup.py"
-    if setup_file.exists():
-        info("Registrando CLI global 'konig' no ambiente...")
-        for edit_cmd in [[sys.executable, "-m", "pip", "install", "-e", "."], ["pip", "install", "-e", "."]]:
-            try:
-                subprocess.run(edit_cmd, cwd=str(root), capture_output=True, check=True)
-                ok("Comando global 'konig' registrado com sucesso!")
-                break
-            except Exception:
-                pass
+    # Registra o pacote em modo editável para habilitar o comando global `konig`
+    for edit_cmd in [[sys.executable, "-m", "pip", "install", "-e", "."], ["pip", "install", "-e", "."]]:
+        try:
+            subprocess.run(edit_cmd, cwd=str(root), capture_output=True, check=True)
+            ok("Comando global 'konig' registrado com sucesso!")
+            break
+        except Exception:
+            pass
 
     return True
 
