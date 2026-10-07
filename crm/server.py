@@ -4,7 +4,7 @@ KONIG Sales, Hosting & MRR CRM — FastAPI Server & Interactive Kanban UI.
 Projetado por:
 - Bob (Arquitetura & APIs)
 - Carol (Design System, Tokens HSL & Usabilidade Ergonômica)
-- Dan (Implementação Fullstack)
+- Dan (Implementação Fullstack com HTML5 Drag & Drop e Ficha do Lead GMB)
 - Elena (Homologação & Qualidade)
 """
 
@@ -23,11 +23,12 @@ from crm.database import (
     list_deals,
     get_deal,
     create_deal,
+    update_deal,
     update_deal_stage,
     get_crm_metrics,
 )
 
-app = FastAPI(title="KONIG Sales & MRR CRM", version="2.1.0")
+app = FastAPI(title="KONIG Sales & MRR CRM", version="2.2.0")
 
 
 @app.on_event("startup")
@@ -37,6 +38,8 @@ def on_startup():
 
 class DealCreate(BaseModel):
     name: str = Field(..., description="Nome da confeitaria / ateliê")
+    owner_name: Optional[str] = Field("", description="Nome da proprietária / decisora")
+    city_state: Optional[str] = Field("", description="Bairro, Cidade - Estado")
     instagram: Optional[str] = Field("", description="@ do Instagram")
     whatsapp: str = Field(..., description="WhatsApp com DDI e DDD (ex: 5511999998888)")
     niche: Optional[str] = Field("Confeitaria Gourmet", description="Nicho de atuação")
@@ -45,6 +48,29 @@ class DealCreate(BaseModel):
     mrr_value: Optional[float] = Field(59.0, description="Valor da hospedagem recorrente mensal")
     hosting_domain: Optional[str] = Field("", description="Domínio do cliente")
     notes: Optional[str] = Field("", description="Anotações e dores da cliente")
+    gmb_rating: Optional[float] = Field(4.9, description="Nota no Google Meu Negócio")
+    gmb_reviews_count: Optional[int] = Field(85, description="Número de avaliações no Google")
+    gmb_url: Optional[str] = Field("", description="Link da ficha no Google Maps")
+    gmb_top_review: Optional[str] = Field("", description="Melhor avaliação coletada no Google")
+    bio_link_type: Optional[str] = Field("Linktree confuso", description="Diagnóstico do link atual na bio")
+
+
+class DealUpdate(BaseModel):
+    name: Optional[str] = None
+    owner_name: Optional[str] = None
+    city_state: Optional[str] = None
+    instagram: Optional[str] = None
+    whatsapp: Optional[str] = None
+    specialty: Optional[str] = None
+    deal_value: Optional[float] = None
+    mrr_value: Optional[float] = None
+    hosting_domain: Optional[str] = None
+    notes: Optional[str] = None
+    gmb_rating: Optional[float] = None
+    gmb_reviews_count: Optional[int] = None
+    gmb_url: Optional[str] = None
+    gmb_top_review: Optional[str] = None
+    bio_link_type: Optional[str] = None
 
 
 class StageUpdate(BaseModel):
@@ -56,9 +82,26 @@ def api_list_deals():
     return list_deals()
 
 
+@app.get("/api/deals/{deal_id}")
+def api_get_deal(deal_id: int):
+    deal = get_deal(deal_id)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Lead não encontrado")
+    return deal
+
+
 @app.post("/api/deals")
 def api_create_deal(deal: DealCreate):
     deal_id = create_deal(deal.model_dump())
+    return {"success": True, "id": deal_id}
+
+
+@app.put("/api/deals/{deal_id}")
+def api_update_deal(deal_id: int, deal: DealUpdate):
+    data = {k: v for k, v in deal.model_dump().items() if v is not None}
+    ok = update_deal(deal_id, data)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Lead não encontrado para atualização")
     return {"success": True, "id": deal_id}
 
 
@@ -75,16 +118,55 @@ def api_metrics():
     return get_crm_metrics()
 
 
+@app.get("/api/first-contact-script/{deal_id}")
+def api_first_contact_script(deal_id: int):
+    """Gera script hiper-personalizado de 1º contato via WhatsApp alavancando Google Meu Negócio."""
+    deal = get_deal(deal_id)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Lead não encontrado")
+
+    owner = deal.get("owner_name") or ""
+    biz_name = deal["name"]
+    name_salutation = f"a {owner} da {biz_name}" if owner else f"a equipe da {biz_name}"
+
+    rating = deal.get("gmb_rating") or 4.9
+    reviews_count = deal.get("gmb_reviews_count") or 85
+    top_review = deal.get("gmb_top_review") or ""
+    bio_link = deal.get("bio_link_type") or "um link seco sem cardápio"
+
+    review_hook = ""
+    if top_review:
+        review_hook = f'\n\nInclusive vi um depoimento lindo de uma cliente elogiando no Google: "{top_review}"'
+
+    script = (
+        f"Olá, tudo bem? Estou falando com {name_salutation}?\n\n"
+        f"Estava conhecendo o trabalho de vocês e fiquei impressionado com a qualidade dos bolos! "
+        f"Vi também que vocês têm nota {rating} no Google com {reviews_count} avaliações maravilhosas.{review_hook}\n\n"
+        f"Mas reparei num detalhe: no Instagram de vocês, quem clica na bio cai em {bio_link.lower()} "
+        f"e não consegue ver essas avaliações do Google nem o cardápio interativo para fazer o pedido com calma.\n\n"
+        f"Nós criamos uma página com cardápio interativo sob medida para ateliês como o seu, onde a cliente monta o pedido "
+        f"(sabor, fatias e data) e te manda tudo formatado direto no WhatsApp, com o selo das suas avaliações 5 estrelas do Google no topo.\n\n"
+        f"Posso te mandar uma prévia de 30 segundos sem compromisso só pra você ver como ficaria o cardápio da {biz_name}?"
+    )
+
+    return {
+        "deal_id": deal_id,
+        "name": biz_name,
+        "owner_name": owner,
+        "script": script
+    }
+
+
 @app.get("/api/upsell-script/{deal_id}")
 def api_upsell_script(deal_id: int):
     deal = get_deal(deal_id)
     if not deal:
         raise HTTPException(status_code=404, detail="Lead não encontrado")
-    
+
     name = deal["name"]
-    first_name = name.split()[0]
+    first_name = (deal.get("owner_name") or name.split()[0]).strip()
     mrr = deal["mrr_value"] or 59.0
-    
+
     script = (
         f"Oi {first_name}, tudo bem? Aqui é da equipe técnica do seu site.\n\n"
         f"A sua página está rodando em nosso servidor seguro há alguns dias e analisamos que várias pessoas "
@@ -95,7 +177,7 @@ def api_upsell_script(deal_id: int):
         f"Como você já é nossa cliente na hospedagem de R$ {int(mrr)}/mês, conseguimos ativar esse módulo "
         f"de Lembrete de Encomendas por apenas R$ 47/mês a mais. Gostaria de ativar um teste em seu cardápio essa semana?"
     )
-    
+
     return {
         "deal_id": deal_id,
         "name": name,
@@ -106,7 +188,7 @@ def api_upsell_script(deal_id: int):
 
 @app.get("/", response_class=HTMLResponse)
 def serve_kanban_dashboard():
-    """Interface visual do CRM projetada com Design Tokens profissionais, SVG icons e layout ergonômico."""
+    """Interface visual do CRM com HTML5 Drag & Drop, Ficha Completa do Negócio e Integração GMB."""
     html_content = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -118,7 +200,6 @@ def serve_kanban_dashboard():
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Tema Dark Carbon (Padrão Operacional Ergonômico) */
       --bg-app: #090D14;
       --bg-surface: #0F172A;
       --bg-card: #141E33;
@@ -140,6 +221,7 @@ def serve_kanban_dashboard():
       --warning-bg: rgba(245, 158, 11, 0.1);
       --purple: #8B5CF6;
       --purple-bg: rgba(139, 92, 246, 0.12);
+      --gmb-gold: #F59E0B;
 
       --scrollbar-thumb: rgba(148, 163, 184, 0.22);
       --scrollbar-thumb-hover: rgba(148, 163, 184, 0.45);
@@ -149,7 +231,6 @@ def serve_kanban_dashboard():
     }
 
     [data-theme="light"] {
-      /* Tema Light Studio (Clareza Executiva) */
       --bg-app: #F8FAFC;
       --bg-surface: #FFFFFF;
       --bg-card: #FFFFFF;
@@ -177,7 +258,6 @@ def serve_kanban_dashboard():
       --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    /* Reset Ergonômico de 100vh: Sem scrolls globais desnecessários */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -198,7 +278,6 @@ def serve_kanban_dashboard():
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Scrollbars Modernas e Discretas (Elimina barras cinzas dos anos 90) */
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
@@ -219,7 +298,7 @@ def serve_kanban_dashboard():
       height: 0;
     }
 
-    /* Header Compacto de Controle */
+    /* Header Compacto */
     header {
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border-subtle);
@@ -327,7 +406,7 @@ def serve_kanban_dashboard():
       background: var(--bg-card-hover);
     }
 
-    /* Barra Superior de Métricas Executivas */
+    /* Métricas Financeiras */
     .metrics-bar {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -372,7 +451,7 @@ def serve_kanban_dashboard():
     .val-green { color: var(--success); }
     .val-purple { color: var(--purple); }
 
-    /* Tabuleiro Kanban Flexível (Zero scroll vertical global) */
+    /* Tabuleiro Kanban com Drag & Drop */
     .board-container {
       flex: 1;
       min-height: 0;
@@ -402,6 +481,12 @@ def serve_kanban_dashboard():
       flex-direction: column;
       height: 100%;
       min-height: 0;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .kanban-column.drag-over {
+      border-color: var(--primary);
+      background: rgba(37, 99, 235, 0.06);
     }
 
     .column-header {
@@ -464,7 +549,7 @@ def serve_kanban_dashboard():
       min-height: 0;
     }
 
-    /* Cards do Pipeline */
+    /* Cards com Drag & Drop e Ficha */
     .deal-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -474,13 +559,25 @@ def serve_kanban_dashboard():
       flex-direction: column;
       gap: 8px;
       box-shadow: var(--shadow-card);
-      transition: border-color 0.15s ease, background-color 0.15s ease;
-      overflow: hidden;
+      transition: all 0.15s ease;
+      cursor: grab;
+      user-select: none;
     }
 
     .deal-card:hover {
       border-color: var(--border-strong);
       background: var(--bg-card-hover);
+    }
+
+    .deal-card:active {
+      cursor: grabbing;
+    }
+
+    .deal-card.dragging {
+      opacity: 0.45;
+      transform: scale(0.97);
+      border-style: dashed;
+      border-color: var(--primary);
     }
 
     .card-head {
@@ -490,11 +587,28 @@ def serve_kanban_dashboard():
       gap: 6px;
     }
 
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .card-name {
       font-weight: 700;
       font-size: 0.88rem;
       color: var(--text-bright);
       line-height: 1.25;
+      cursor: pointer;
+    }
+    .card-name:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .card-owner {
+      font-size: 0.72rem;
+      color: var(--text-muted);
     }
 
     .card-tag {
@@ -505,6 +619,27 @@ def serve_kanban_dashboard():
       background: var(--purple-bg);
       color: var(--purple);
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Selo Google Meu Negócio no Card */
+    .gmb-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--gmb-gold);
+      font-weight: 600;
+    }
+
+    .gmb-stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, 0.25);
     }
 
     .card-meta {
@@ -558,80 +693,62 @@ def serve_kanban_dashboard():
       border-radius: 3px;
     }
 
-    .card-notes {
-      font-size: 0.71rem;
-      color: var(--text-dim);
-      font-style: italic;
-      line-height: 1.3;
-    }
-
-    .btn-upsell-trigger {
-      background: var(--purple-bg);
-      border: 1px solid var(--purple);
-      color: var(--purple);
-      padding: 5px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-    .btn-upsell-trigger:hover {
-      background: var(--purple);
-      color: #FFFFFF;
-    }
-
-    .card-actions {
-      display: flex;
+    .card-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 6px;
       margin-top: 2px;
     }
 
-    .btn-zap {
-      background: #10B981;
-      color: #FFFFFF;
-      font-size: 0.72rem;
-      padding: 4px 8px;
+    .btn-card {
+      height: 28px;
+      padding: 0 8px;
       border-radius: var(--radius-sm);
-      text-decoration: none;
+      font-size: 0.72rem;
       font-weight: 600;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-main);
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      white-space: nowrap;
-      transition: opacity 0.15s ease;
-    }
-    .btn-zap:hover { opacity: 0.9; }
-
-    .card-actions select {
-      flex: 1;
-      min-width: 0;
-      background: var(--bg-surface);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      padding: 4px 6px;
-      border-radius: var(--radius-sm);
-      font-size: 0.72rem;
-      font-family: inherit;
       cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
     }
-    .card-actions select:focus {
-      outline: none;
-      border-color: var(--border-focus);
+    .btn-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-strong);
     }
 
-    /* Modais */
+    .btn-card-zap {
+      background: #10B981;
+      color: #FFFFFF;
+      border-color: #10B981;
+    }
+    .btn-card-zap:hover {
+      opacity: 0.9;
+      background: #059669;
+    }
+
+    .btn-card-upsell {
+      background: var(--purple-bg);
+      border-color: var(--purple);
+      color: var(--purple);
+      grid-column: span 2;
+    }
+    .btn-card-upsell:hover {
+      background: var(--purple);
+      color: #FFFFFF;
+    }
+
+    /* Modal Ficha Completa do Lead */
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
       z-index: 100;
       align-items: center;
@@ -639,12 +756,167 @@ def serve_kanban_dashboard():
       padding: 16px;
     }
 
-    .modal {
+    .modal-dossier {
       background: var(--bg-surface);
       border: 1px solid var(--border-strong);
       border-radius: var(--radius);
       width: 100%;
-      max-width: 480px;
+      max-width: 820px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+
+    .dossier-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .dossier-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-bright);
+      letter-spacing: -0.01em;
+    }
+
+    .dossier-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .dossier-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+    }
+
+    .field-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .field-input {
+      background: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-bright);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .field-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .gmb-box {
+      background: rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gmb-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .gmb-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--gmb-gold);
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .gmb-quote {
+      font-size: 0.76rem;
+      font-style: italic;
+      color: var(--text-main);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 2px solid var(--gmb-gold);
+      line-height: 1.4;
+    }
+
+    .dossier-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-group-left {
+      display: flex;
+      gap: 8px;
+    }
+    .action-group-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Modal Roteiro de Abordagem */
+    .modal-script {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 540px;
       padding: 22px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
       display: flex;
@@ -652,57 +924,7 @@ def serve_kanban_dashboard():
       gap: 16px;
     }
 
-    .modal-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-bright);
-      letter-spacing: -0.01em;
-    }
-
-    .modal-subtitle {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-top: -10px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .form-group label {
-      font-size: 0.74rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .form-group input, .form-group select, .form-group textarea {
-      background: var(--bg-app);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-bright);
-      border-radius: var(--radius-sm);
-      padding: 8px 10px;
-      font-size: 0.82rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: var(--border-focus);
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      padding-top: 6px;
-    }
-
-    /* Cores dos Dots dos Estágios */
+    /* Dots */
     .dot-blue { background: #3B82F6; }
     .dot-indigo { background: #6366F1; }
     .dot-amber { background: #F59E0B; }
@@ -715,7 +937,7 @@ def serve_kanban_dashboard():
 </head>
 <body>
 
-  <!-- Top Header de Controle -->
+  <!-- Top Header -->
   <header>
     <div class="brand">
       <div class="brand-mark">
@@ -762,7 +984,7 @@ def serve_kanban_dashboard():
     </div>
   </header>
 
-  <!-- Barra de Métricas Financeiras -->
+  <!-- Métricas Financeiras -->
   <div class="metrics-bar" id="metricsBar">
     <div class="metric-card">
       <div class="metric-label">Caixa Front-End (R$ 699)</div>
@@ -786,11 +1008,11 @@ def serve_kanban_dashboard():
     </div>
   </div>
 
-  <!-- Tabuleiro Kanban Ergonômico -->
+  <!-- Tabuleiro Kanban Drag & Drop -->
   <div class="board-container">
     <div class="kanban-wrapper" id="kanbanBoard">
       <!-- 1. Prospecção -->
-      <div class="kanban-column" data-stage="prospeccao">
+      <div class="kanban-column" data-stage="prospeccao" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'prospeccao')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-blue"></div>
@@ -801,8 +1023,8 @@ def serve_kanban_dashboard():
         <div class="cards-container" id="cards-prospeccao"></div>
       </div>
 
-      <!-- 2. Contato Enviado -->
-      <div class="kanban-column" data-stage="contato_enviado">
+      <!-- 2. Primeiro Contato -->
+      <div class="kanban-column" data-stage="contato_enviado" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'contato_enviado')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-indigo"></div>
@@ -813,8 +1035,8 @@ def serve_kanban_dashboard():
         <div class="cards-container" id="cards-contato_enviado"></div>
       </div>
 
-      <!-- 3. Em Conversa / Demo -->
-      <div class="kanban-column" data-stage="em_conversa">
+      <!-- 3. Em Qualificação -->
+      <div class="kanban-column" data-stage="em_conversa" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'em_conversa')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-amber"></div>
@@ -826,7 +1048,7 @@ def serve_kanban_dashboard():
       </div>
 
       <!-- 4. Negociação -->
-      <div class="kanban-column" data-stage="negociacao">
+      <div class="kanban-column" data-stage="negociacao" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'negociacao')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-orange"></div>
@@ -838,7 +1060,7 @@ def serve_kanban_dashboard():
       </div>
 
       <!-- 5. Fechado & Pago -->
-      <div class="kanban-column" data-stage="fechado_pago">
+      <div class="kanban-column" data-stage="fechado_pago" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'fechado_pago')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-green"></div>
@@ -849,8 +1071,8 @@ def serve_kanban_dashboard():
         <div class="cards-container" id="cards-fechado_pago"></div>
       </div>
 
-      <!-- 6. Em Produção -->
-      <div class="kanban-column" data-stage="setup_48h">
+      <!-- 6. Em Produção (48h) -->
+      <div class="kanban-column" data-stage="setup_48h" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'setup_48h')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-cyan"></div>
@@ -862,7 +1084,7 @@ def serve_kanban_dashboard():
       </div>
 
       <!-- 7. No Ar & MRR Ativo -->
-      <div class="kanban-column" data-stage="radar_upsell">
+      <div class="kanban-column" data-stage="radar_upsell" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'radar_upsell')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-purple"></div>
@@ -873,8 +1095,8 @@ def serve_kanban_dashboard():
         <div class="cards-container" id="cards-radar_upsell"></div>
       </div>
 
-      <!-- 8. Perdido -->
-      <div class="kanban-column" data-stage="perdido">
+      <!-- 8. Desqualificado -->
+      <div class="kanban-column" data-stage="perdido" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'perdido')">
         <div class="column-header">
           <div class="col-title-wrap">
             <div class="col-dot dot-gray"></div>
@@ -887,40 +1109,214 @@ def serve_kanban_dashboard():
     </div>
   </div>
 
-  <!-- Modal: Novo Lead -->
+  <!-- Modal: Ficha Completa do Lead (Dossiê do Negócio) -->
+  <div class="modal-overlay" id="dossierModal">
+    <div class="modal-dossier">
+      <div class="dossier-header">
+        <div class="dossier-title-wrap">
+          <div class="dossier-title" id="dossierTitle">Ficha do Lead</div>
+          <div class="dossier-subtitle" id="dossierSubtitle">Inteligência de Mercado, Google Meu Negócio e Parâmetros Comerciais</div>
+        </div>
+        <button class="btn btn-outline" onclick="closeDossierModal()">Fechar</button>
+      </div>
+
+      <input type="hidden" id="dossierDealId">
+
+      <div class="dossier-grid">
+        <!-- Coluna Esquerda: Identidade & GMB -->
+        <div class="dossier-section">
+          <div class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Identidade do Negócio & Decisor
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Nome da Confeitaria / Ateliê</label>
+            <input type="text" class="field-input" id="dossierName">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Nome da Proprietária / Decisora</label>
+            <input type="text" class="field-input" id="dossierOwnerName" placeholder="Ex: Sandra, Camila...">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Bairro, Cidade - Estado</label>
+            <input type="text" class="field-input" id="dossierCityState" placeholder="Ex: Tijuca, Rio de Janeiro - RJ">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Especialidade / Carro-Chefe</label>
+            <input type="text" class="field-input" id="dossierSpecialty" placeholder="Ex: Bolos artísticos para casamento, bentô cakes...">
+          </div>
+
+          <!-- Caixa Google Meu Negócio (GMB) -->
+          <div class="gmb-box">
+            <div class="gmb-header-row">
+              <div class="field-label" style="color: var(--gmb-gold);">Google Meu Negócio (GMB)</div>
+              <div class="gmb-score" id="gmbScoreDisplay">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span id="dossierRatingText">4.9</span> (<span id="dossierReviewsText">142</span>)
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="field-row">
+                <label class="field-label">Nota no Google</label>
+                <input type="number" step="0.1" max="5.0" min="1.0" class="field-input" id="dossierGmbRating">
+              </div>
+              <div class="field-row">
+                <label class="field-label">Total de Avaliações</label>
+                <input type="number" class="field-input" id="dossierGmbReviews">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <label class="field-label">Link da Ficha no Google Maps</label>
+              <input type="text" class="field-input" id="dossierGmbUrl" placeholder="https://maps.google.com/?q=...">
+            </div>
+
+            <div class="field-row">
+              <label class="field-label">Depoimento Estrela do Google (Prova Social)</label>
+              <textarea class="field-input" id="dossierGmbTopReview" rows="2" placeholder="Avaliação real de cliente para estampar no topo da Landing Page..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Contato, Diagnóstico & Operação -->
+        <div class="dossier-section">
+          <div class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            Contato & Diagnóstico Digital
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">WhatsApp Oficial (com DDD)</label>
+            <input type="text" class="field-input" id="dossierWhatsapp">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Perfil do Instagram (@)</label>
+            <input type="text" class="field-input" id="dossierInstagram">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Diagnóstico do Link da Bio Atual</label>
+            <input type="text" class="field-input" id="dossierBioLinkType" placeholder="Ex: Linktree com 8 links confusos, sem cardápio...">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="field-row">
+              <label class="field-label">Valor Front-End (R$)</label>
+              <input type="number" class="field-input" id="dossierDealValue">
+            </div>
+            <div class="field-row">
+              <label class="field-label">Hospedagem MRR (R$/mês)</label>
+              <select class="field-input" id="dossierMrrValue">
+                <option value="59.0">R$ 59,00/mês</option>
+                <option value="79.0">R$ 79,00/mês</option>
+                <option value="97.0">R$ 97,00/mês</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Domínio Sugerido / Contratado</label>
+            <input type="text" class="field-input" id="dossierHostingDomain" placeholder="Ex: sandrabolos.com.br">
+          </div>
+
+          <div class="field-row">
+            <label class="field-label">Anotações Internas & Dores Observadas</label>
+            <textarea class="field-input" id="dossierNotes" rows="3" placeholder="Histórico das conversas, preferências da cliente..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-actions">
+        <div class="action-group-left">
+          <button type="button" class="btn btn-primary" onclick="openFirstContactScriptFromDossier()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            Gerar Abordagem Zap (com Google Review)
+          </button>
+          <button type="button" class="btn btn-outline" onclick="openUpsellFromDossier()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            Radar LTV (Jay Abraham)
+          </button>
+        </div>
+
+        <div class="action-group-right">
+          <button type="button" class="btn btn-outline" onclick="closeDossierModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="saveLeadDossier()">Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cadastro de Novo Lead -->
   <div class="modal-overlay" id="newLeadModal">
-    <div class="modal">
-      <div class="modal-title">Cadastrar Lead de Confeitaria</div>
+    <div class="modal-script">
+      <div class="dossier-title">Cadastrar Lead de Confeitaria</div>
       <form id="newLeadForm" onsubmit="handleCreateLead(event)">
-        <div class="form-group">
-          <label>Nome do Estabelecimento *</label>
-          <input type="text" id="leadName" required placeholder="Ex: Ateliê Sandra Bolos">
+        <div class="field-row">
+          <label class="field-label">Nome do Estabelecimento *</label>
+          <input type="text" class="field-input" id="leadName" required placeholder="Ex: Ateliê Sandra Bolos">
         </div>
-        <div class="form-group">
-          <label>Perfil do Instagram</label>
-          <input type="text" id="leadInstagram" placeholder="@ateliesandra">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+          <div class="field-row">
+            <label class="field-label">Nome da Decisora</label>
+            <input type="text" class="field-input" id="leadOwnerName" placeholder="Ex: Sandra">
+          </div>
+          <div class="field-row">
+            <label class="field-label">Cidade / Bairro</label>
+            <input type="text" class="field-input" id="leadCityState" placeholder="Ex: Moema, SP">
+          </div>
         </div>
-        <div class="form-group">
-          <label>WhatsApp (com DDD) *</label>
-          <input type="text" id="leadWhatsapp" required placeholder="5511999998888">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+          <div class="field-row">
+            <label class="field-label">Instagram (@)</label>
+            <input type="text" class="field-input" id="leadInstagram" placeholder="@ateliesandra">
+          </div>
+          <div class="field-row">
+            <label class="field-label">WhatsApp *</label>
+            <input type="text" class="field-input" id="leadWhatsapp" required placeholder="5511999998888">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Especialidade</label>
-          <input type="text" id="leadSpecialty" placeholder="Ex: Bolos artísticos, bentô cakes">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+          <div class="field-row">
+            <label class="field-label">Nota Google</label>
+            <input type="number" step="0.1" class="field-input" id="leadGmbRating" value="4.9">
+          </div>
+          <div class="field-row">
+            <label class="field-label">Nº Avaliações Google</label>
+            <input type="number" class="field-input" id="leadGmbReviews" value="85">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Plano de Hospedagem / MRR Previsto</label>
-          <select id="leadMrr">
+        <div class="field-row" style="margin-top: 6px;">
+          <label class="field-label">Melhor Avaliação do Google</label>
+          <input type="text" class="field-input" id="leadGmbTopReview" placeholder="Ex: Bolo maravilhoso, entrega pontual...">
+        </div>
+        <div class="field-row" style="margin-top: 6px;">
+          <label class="field-label">Plano de Hospedagem / MRR Previsto</label>
+          <select class="field-input" id="leadMrr">
             <option value="59.0">R$ 59,00/mês (Hospedagem Gerenciada + SSL)</option>
-            <option value="79.0" selected>R$ 79,00/mês (Hospedagem Pro + Ajustes de Cardápio)</option>
+            <option value="79.0" selected>R$ 79,00/mês (Hospedagem Pro + Ajustes Cardápio)</option>
             <option value="97.0">R$ 97,00/mês (Hospedagem + Suporte Prioritário)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Anotações do Perfil</label>
-          <textarea id="leadNotes" rows="2" placeholder="Link da bio atual, seguidores, dores observadas no atendimento..."></textarea>
-        </div>
-        <div class="modal-actions">
+        <div class="modal-actions" style="margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn btn-outline" onclick="closeNewLeadModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar Lead</button>
         </div>
@@ -928,18 +1324,18 @@ def serve_kanban_dashboard():
     </div>
   </div>
 
-  <!-- Modal: Roteiro de Upsell (Jay Abraham) -->
-  <div class="modal-overlay" id="upsellModal">
-    <div class="modal">
-      <div class="modal-title" id="upsellTitle">Estratégia de Expansão de Conta</div>
-      <div class="modal-subtitle">Abordagem de consultoria baseada na heurística do Próximo Problema Lógico do cliente.</div>
-      <div class="form-group">
-        <label>Mensagem para WhatsApp</label>
-        <textarea id="upsellScriptText" rows="7" readonly style="font-family: inherit; font-size: 0.8rem; line-height: 1.45;"></textarea>
+  <!-- Modal: Roteiro de Abordagem / Upsell -->
+  <div class="modal-overlay" id="scriptModal">
+    <div class="modal-script">
+      <div class="dossier-title" id="scriptModalTitle">Roteiro Personalizado</div>
+      <div class="dossier-subtitle" id="scriptModalSubtitle">Mensagem pronta para envio imediato no WhatsApp.</div>
+      <div class="field-row">
+        <label class="field-label">Mensagem para Copiar</label>
+        <textarea id="scriptModalText" rows="9" readonly class="field-input" style="font-size: 0.8rem; line-height: 1.45;"></textarea>
       </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-outline" onclick="closeUpsellModal()">Fechar</button>
-        <button type="button" class="btn btn-primary" onclick="copyUpsellScript()">
+      <div class="modal-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+        <button type="button" class="btn btn-outline" onclick="closeScriptModal()">Fechar</button>
+        <button type="button" class="btn btn-primary" onclick="copyScriptText()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -950,7 +1346,7 @@ def serve_kanban_dashboard():
     </div>
   </div>
 
-  <!-- Scripts do CRM -->
+  <!-- JavaScript do CRM com Drag & Drop e Ficha do Lead -->
   <script>
     const STAGES = [
       'prospeccao',
@@ -974,7 +1370,9 @@ def serve_kanban_dashboard():
       'perdido': '8. Desqualificado'
     };
 
-    // Gerenciador de Tema (Dark / Light) com persistência
+    let draggedDealId = null;
+
+    // Gerenciador de Tema (Dark / Light)
     function applyTheme(theme) {
       if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
@@ -1003,11 +1401,10 @@ def serve_kanban_dashboard():
       applyTheme(current === 'light' ? 'dark' : 'light');
     }
 
-    // Inicializa tema salvo
     const savedTheme = localStorage.getItem('konig_crm_theme') || 'dark';
     applyTheme(savedTheme);
 
-    // Rolagem horizontal ergonômica com a roda do mouse sobre o tabuleiro
+    // Rolagem horizontal ergonômica com roda do mouse
     const board = document.getElementById('kanbanBoard');
     board.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0 && !e.target.closest('.cards-container')) {
@@ -1016,6 +1413,66 @@ def serve_kanban_dashboard():
       }
     }, { passive: false });
 
+    // HTML5 Drag & Drop Handlers
+    function handleDragStart(e, dealId) {
+      draggedDealId = dealId;
+      e.dataTransfer.setData('text/plain', dealId);
+      e.dataTransfer.effectAllowed = 'move';
+      e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+      draggedDealId = null;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const col = e.currentTarget;
+      if (!col.classList.contains('drag-over')) {
+        col.classList.add('drag-over');
+      }
+    }
+
+    function handleDragLeave(e) {
+      const col = e.currentTarget;
+      col.classList.remove('drag-over');
+    }
+
+    async function handleDrop(e, targetStage) {
+      e.preventDefault();
+      const col = e.currentTarget;
+      col.classList.remove('drag-over');
+
+      const dealId = draggedDealId || e.dataTransfer.getData('text/plain');
+      if (!dealId) return;
+
+      const cardElem = document.getElementById(`deal-card-${dealId}`);
+      const targetContainer = document.getElementById(`cards-${targetStage}`);
+
+      // Optimistic UI move
+      if (cardElem && targetContainer) {
+        targetContainer.prepend(cardElem);
+      }
+
+      try {
+        const res = await fetch(`/api/deals/${dealId}/stage`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stage: targetStage })
+        });
+        if (res.ok) {
+          loadAllData();
+        }
+      } catch (err) {
+        console.error('Erro ao mover lead via drag-and-drop:', err);
+        loadAllData();
+      }
+    }
+
+    // Carregamento de Dados
     async function loadAllData() {
       await Promise.all([loadMetrics(), loadDeals()]);
     }
@@ -1024,15 +1481,15 @@ def serve_kanban_dashboard():
       try {
         const res = await fetch('/api/metrics');
         const data = await res.json();
-        
+
         document.getElementById('wonRevenue').innerText = 'R$ ' + data.won_revenue.toLocaleString('pt-BR', {minimumFractionDigits: 2});
         document.getElementById('wonCount').innerText = `${data.won_count} negócios fechados`;
-        
+
         document.getElementById('totalMrr').innerText = 'R$ ' + data.total_mrr.toLocaleString('pt-BR', {minimumFractionDigits: 2}) + '/mês';
         document.getElementById('activeHosts').innerText = `${data.active_mrr_clients} hospedagens ativas no servidor`;
-        
+
         document.getElementById('projectedArr').innerText = 'R$ ' + data.projected_arr.toLocaleString('pt-BR', {minimumFractionDigits: 2}) + '/ano';
-        
+
         document.getElementById('totalLeads').innerText = data.total_leads;
         document.getElementById('conversionRate').innerText = `Taxa de conversão: ${data.conversion_rate}%`;
       } catch (err) {
@@ -1078,20 +1535,36 @@ def serve_kanban_dashboard():
     function createDealCardElement(deal) {
       const card = document.createElement('div');
       card.className = 'deal-card';
-      
-      const cleanZap = (deal.whatsapp || '').replace(/\\D/g, '');
-      const zapLink = cleanZap ? `https://wa.me/${cleanZap}?text=Olá%20${encodeURIComponent(deal.name.split(' ')[0])},%20tudo%20bem?` : '#';
+      card.id = `deal-card-${deal.id}`;
+      card.draggable = true;
+      card.ondragstart = (e) => handleDragStart(e, deal.id);
+      card.ondragend = (e) => handleDragEnd(e);
 
-      let stageOptions = STAGES.map(s => {
-        return `<option value="${s}" ${s === deal.stage ? 'selected' : ''}>${STAGE_NAMES[s]}</option>`;
-      }).join('');
+      const cleanZap = (deal.whatsapp || '').replace(/\\D/g, '');
+      const zapLink = cleanZap ? `https://wa.me/${cleanZap}?text=Olá%20${encodeURIComponent((deal.owner_name || deal.name).split(' ')[0])},%20tudo%20bem?` : '#';
+
+      const gmbRating = deal.gmb_rating || 4.9;
+      const gmbReviews = deal.gmb_reviews_count || 0;
 
       card.innerHTML = `
         <div class="card-head">
-          <div class="card-name">${escapeHtml(deal.name)}</div>
+          <div class="card-title-group">
+            <div class="card-name" onclick="openLeadDossier(${deal.id})" title="Clique para abrir a Ficha do Lead">${escapeHtml(deal.name)}</div>
+            ${deal.owner_name ? `<div class="card-owner">${escapeHtml(deal.owner_name)} ${deal.city_state ? '• ' + escapeHtml(deal.city_state) : ''}</div>` : ''}
+          </div>
           <div class="card-tag">${escapeHtml(deal.niche || 'Gourmet')}</div>
         </div>
-        
+
+        <div class="gmb-badge-row">
+          <div class="gmb-stars">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            ${gmbRating.toFixed(1)} (${gmbReviews})
+          </div>
+          <span style="color: var(--text-dim); font-size: 0.68rem;">Google Avaliações</span>
+        </div>
+
         <div class="card-meta">
           ${deal.instagram ? `
             <a href="https://instagram.com/${deal.instagram.replace('@','')}" target="_blank">
@@ -1120,10 +1593,8 @@ def serve_kanban_dashboard():
           <span class="val-mrr">+ R$ ${deal.mrr_value.toFixed(2)}/mês MRR</span>
         </div>
 
-        ${deal.notes ? `<div class="card-notes">"${escapeHtml(deal.notes)}"</div>` : ''}
-
         ${deal.stage === 'radar_upsell' || deal.stage === 'fechado_pago' ? `
-          <button class="btn-upsell-trigger" onclick="openUpsellModal(${deal.id})">
+          <button class="btn-card btn-card-upsell" onclick="openUpsellModal(${deal.id})">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
@@ -1132,46 +1603,168 @@ def serve_kanban_dashboard():
           </button>
         ` : ''}
 
-        <div class="card-actions">
-          <a href="${zapLink}" target="_blank" class="btn-zap">
+        <div class="card-actions-row">
+          <a href="${zapLink}" target="_blank" class="btn-card btn-card-zap">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
             </svg>
             WhatsApp
           </a>
-          <select onchange="handleMoveStage(${deal.id}, this.value)">
-            ${stageOptions}
-          </select>
+          <button type="button" class="btn-card" onclick="openLeadDossier(${deal.id})">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Ficha do Lead
+          </button>
         </div>
       `;
 
       return card;
     }
 
-    async function handleMoveStage(dealId, newStage) {
+    // Modal: Ficha Completa do Lead
+    async function openLeadDossier(dealId) {
       try {
-        const res = await fetch(`/api/deals/${dealId}/stage`, {
-          method: 'PATCH',
+        const res = await fetch(`/api/deals/${dealId}`);
+        const deal = await res.json();
+
+        document.getElementById('dossierDealId').value = deal.id;
+        document.getElementById('dossierTitle').innerText = deal.name;
+        document.getElementById('dossierName').value = deal.name || '';
+        document.getElementById('dossierOwnerName').value = deal.owner_name || '';
+        document.getElementById('dossierCityState').value = deal.city_state || '';
+        document.getElementById('dossierSpecialty').value = deal.specialty || '';
+        document.getElementById('dossierInstagram').value = deal.instagram || '';
+        document.getElementById('dossierWhatsapp').value = deal.whatsapp || '';
+        document.getElementById('dossierBioLinkType').value = deal.bio_link_type || '';
+        document.getElementById('dossierDealValue').value = deal.deal_value || 699.0;
+        document.getElementById('dossierMrrValue').value = (deal.mrr_value || 59.0).toFixed(1);
+        document.getElementById('dossierHostingDomain').value = deal.hosting_domain || '';
+        document.getElementById('dossierNotes').value = deal.notes || '';
+
+        // GMB
+        const gmbRating = deal.gmb_rating || 4.9;
+        const gmbReviews = deal.gmb_reviews_count || 85;
+        document.getElementById('dossierGmbRating').value = gmbRating;
+        document.getElementById('dossierGmbReviews').value = gmbReviews;
+        document.getElementById('dossierGmbUrl').value = deal.gmb_url || '';
+        document.getElementById('dossierGmbTopReview').value = deal.gmb_top_review || '';
+        document.getElementById('dossierRatingText').innerText = gmbRating.toFixed(1);
+        document.getElementById('dossierReviewsText').innerText = gmbReviews;
+
+        document.getElementById('dossierModal').style.display = 'flex';
+      } catch (err) {
+        alert('Erro ao carregar Ficha do Lead');
+      }
+    }
+
+    function closeDossierModal() {
+      document.getElementById('dossierModal').style.display = 'none';
+    }
+
+    async function saveLeadDossier() {
+      const dealId = document.getElementById('dossierDealId').value;
+      const payload = {
+        name: document.getElementById('dossierName').value,
+        owner_name: document.getElementById('dossierOwnerName').value,
+        city_state: document.getElementById('dossierCityState').value,
+        specialty: document.getElementById('dossierSpecialty').value,
+        instagram: document.getElementById('dossierInstagram').value,
+        whatsapp: document.getElementById('dossierWhatsapp').value,
+        bio_link_type: document.getElementById('dossierBioLinkType').value,
+        deal_value: parseFloat(document.getElementById('dossierDealValue').value),
+        mrr_value: parseFloat(document.getElementById('dossierMrrValue').value),
+        hosting_domain: document.getElementById('dossierHostingDomain').value,
+        notes: document.getElementById('dossierNotes').value,
+        gmb_rating: parseFloat(document.getElementById('dossierGmbRating').value),
+        gmb_reviews_count: parseInt(document.getElementById('dossierGmbReviews').value),
+        gmb_url: document.getElementById('dossierGmbUrl').value,
+        gmb_top_review: document.getElementById('dossierGmbTopReview').value
+      };
+
+      try {
+        const res = await fetch(`/api/deals/${dealId}`, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stage: newStage })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
+          closeDossierModal();
           loadAllData();
         }
       } catch (err) {
-        alert('Erro ao mover lead');
+        alert('Erro ao salvar Ficha do Lead');
       }
+    }
+
+    // Gerador de Scripts
+    async function openFirstContactScriptFromDossier() {
+      const dealId = document.getElementById('dossierDealId').value;
+      try {
+        const res = await fetch(`/api/first-contact-script/${dealId}`);
+        const data = await res.json();
+        document.getElementById('scriptModalTitle').innerText = `Abordagem de 1º Contato — ${data.name}`;
+        document.getElementById('scriptModalSubtitle').innerText = `Mensagem humanizada alavancando as avaliações do Google Meu Negócio.`;
+        document.getElementById('scriptModalText').value = data.script;
+        document.getElementById('scriptModal').style.display = 'flex';
+      } catch (err) {
+        alert('Erro ao gerar abordagem');
+      }
+    }
+
+    async function openUpsellFromDossier() {
+      const dealId = document.getElementById('dossierDealId').value;
+      openUpsellModal(dealId);
+    }
+
+    async function openUpsellModal(dealId) {
+      try {
+        const res = await fetch(`/api/upsell-script/${dealId}`);
+        const data = await res.json();
+        document.getElementById('scriptModalTitle').innerText = `Estratégia de Expansão — ${data.name}`;
+        document.getElementById('scriptModalSubtitle').innerText = `Abordagem de consultoria baseada na heurística do Próximo Problema Lógico do cliente.`;
+        document.getElementById('scriptModalText').value = data.script;
+        document.getElementById('scriptModal').style.display = 'flex';
+      } catch (err) {
+        alert('Erro ao buscar script de upsell');
+      }
+    }
+
+    function closeScriptModal() {
+      document.getElementById('scriptModal').style.display = 'none';
+    }
+
+    function copyScriptText() {
+      const textarea = document.getElementById('scriptModalText');
+      textarea.select();
+      document.execCommand('copy');
+      alert('Mensagem copiada para a área de transferência!');
+    }
+
+    // Modal Novo Lead
+    function openNewLeadModal() {
+      document.getElementById('newLeadModal').style.display = 'flex';
+    }
+    function closeNewLeadModal() {
+      document.getElementById('newLeadModal').style.display = 'none';
     }
 
     async function handleCreateLead(e) {
       e.preventDefault();
       const payload = {
         name: document.getElementById('leadName').value,
+        owner_name: document.getElementById('leadOwnerName').value,
+        city_state: document.getElementById('leadCityState').value,
         instagram: document.getElementById('leadInstagram').value,
         whatsapp: document.getElementById('leadWhatsapp').value,
-        specialty: document.getElementById('leadSpecialty').value,
+        gmb_rating: parseFloat(document.getElementById('leadGmbRating').value || 4.9),
+        gmb_reviews_count: parseInt(document.getElementById('leadGmbReviews').value || 85),
+        gmb_top_review: document.getElementById('leadGmbTopReview').value,
         mrr_value: parseFloat(document.getElementById('leadMrr').value),
-        notes: document.getElementById('leadNotes').value,
         deal_value: 699.0
       };
 
@@ -1189,36 +1782,6 @@ def serve_kanban_dashboard():
       } catch (err) {
         alert('Erro ao salvar lead');
       }
-    }
-
-    async function openUpsellModal(dealId) {
-      try {
-        const res = await fetch(`/api/upsell-script/${dealId}`);
-        const data = await res.json();
-        document.getElementById('upsellTitle').innerText = `Estratégia de Expansão — ${data.name}`;
-        document.getElementById('upsellScriptText').value = data.script;
-        document.getElementById('upsellModal').style.display = 'flex';
-      } catch (err) {
-        alert('Erro ao buscar script de upsell');
-      }
-    }
-
-    function closeUpsellModal() {
-      document.getElementById('upsellModal').style.display = 'none';
-    }
-
-    function copyUpsellScript() {
-      const textarea = document.getElementById('upsellScriptText');
-      textarea.select();
-      document.execCommand('copy');
-      alert('Mensagem copiada para a área de transferência.');
-    }
-
-    function openNewLeadModal() {
-      document.getElementById('newLeadModal').style.display = 'flex';
-    }
-    function closeNewLeadModal() {
-      document.getElementById('newLeadModal').style.display = 'none';
     }
 
     function escapeHtml(text) {

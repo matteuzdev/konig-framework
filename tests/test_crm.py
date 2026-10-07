@@ -80,3 +80,38 @@ def test_crm_jay_abraham_upsell_script():
     data = res.json()
     assert "Lembrete Automático" in data["upsell_name"]
     assert "hospedagem" in data["script"]
+
+
+def test_crm_first_contact_gmb_script():
+    """Valida se o script de 1º contato alavanca a nota e avaliações do Google Meu Negócio."""
+    deals = list_deals()
+    first_deal = deals[0]
+    res = client.get(f"/api/first-contact-script/{first_deal['id']}")
+    assert res.status_code == 200
+    data = res.json()
+    assert "Google" in data["script"]
+    assert "Olá, tudo bem?" in data["script"]
+    assert "cardápio" in data["script"]
+
+
+def test_crm_update_lead_dossier():
+    """Valida a atualização da Ficha Completa do Lead com campos de GMB e Decisor."""
+    deals = list_deals()
+    target_id = deals[0]["id"]
+    update_payload = {
+        "owner_name": "Renata Silva",
+        "city_state": "Moema, São Paulo - SP",
+        "gmb_rating": 5.0,
+        "gmb_reviews_count": 180,
+        "gmb_top_review": "Bolo inesquecível, atendimento 5 estrelas!"
+    }
+    put_res = client.put(f"/api/deals/{target_id}", json=update_payload)
+    assert put_res.status_code == 200
+
+    get_res = client.get(f"/api/deals/{target_id}")
+    assert get_res.status_code == 200
+    updated = get_res.json()
+    assert updated["owner_name"] == "Renata Silva"
+    assert updated["gmb_rating"] == 5.0
+    assert updated["gmb_reviews_count"] == 180
+
