@@ -199,12 +199,29 @@ eliminando dependências externas frágeis e garantindo previsibilidade de entre
 """)
 
 
+def cmd_crm(args: argparse.Namespace) -> None:
+    """Inicia o servidor web local do KONIG Sales, Hosting & MRR CRM."""
+    import uvicorn
+    from crm.database import init_db
+    init_db()
+    port = args.port or 8000
+    print(f"\n🦁 KONIG PIPELINE CRM — Iniciando painel de Vendas, Hospedagem & MRR...")
+    print(f"📊 Acesse no seu navegador: http://127.0.0.1:{port}")
+    print(f"💡 Pressione CTRL+C no terminal para parar o servidor.\n")
+    uvicorn.run("crm.server:app", host="127.0.0.1", port=port, reload=False)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="konig",
         description="KONIG Agentic Framework CLI — Motor industrial de orquestração de IA"
     )
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
+
+    # crm
+    p_crm = subparsers.add_parser("crm", help="Inicia o painel visual do KONIG Sales, Hosting & MRR CRM")
+    p_crm.add_argument("--port", "-p", type=int, default=8000, help="Porta do servidor web (padrão: 8000)")
+    p_crm.set_defaults(func=cmd_crm)
 
     # onix
     p_onix = subparsers.add_parser("onix", help="Invoca o ONIX Meta Orchestrator para arquitetar e despachar squads autônomos")

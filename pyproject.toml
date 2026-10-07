@@ -36,5 +36,9 @@ dependencies = [
 konig = "cli:main"
 
 [tool.setuptools]
-packages = ["core", "core.engine", "core.llm", "core.memory", "core.primitives", "core.runtime", "channels"]
+packages = ["core", "core.engine", "core.llm", "core.memory", "core.primitives", "core.runtime", "channels", "crm", "skills"]
 py-modules = ["cli", "main"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
