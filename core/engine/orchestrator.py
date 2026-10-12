@@ -153,13 +153,18 @@ class KonigOrchestrator:
                     return ag
             if task.assigned_agent in self.agents:
                 return self.agents[task.assigned_agent]
+            # Security boundary: an explicitly assigned task must never be
+            # silently executed by a different agent.
+            return None
 
-        # Busca por skills requeridas
-        for ag in self.environment.agents.values():
-            if task.required_skills and all(s in ag.skills for s in task.required_skills):
-                return ag
+        # A task requesting skills must only run on an eligible agent.
+        if task.required_skills:
+            for ag in self.environment.agents.values():
+                if all(skill in ag.skills for skill in task.required_skills):
+                    return ag
+            return None
 
-        # Fallback para o primeiro agente disponível
+        # Unassigned, unconstrained tasks retain the legacy default behavior.
         return next(iter(self.environment.agents.values()), None) if self.environment.agents else None
 
     def execute_agent_step(
