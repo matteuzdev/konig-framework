@@ -48,12 +48,13 @@ class KonigLLMRouter:
         fallback_models: Optional[List[str]] = None,
         agent_signature: str = "[System - Engine]",
         temperature: float = 0.7,
-        max_retries_per_model: int = 2
+        max_retries_per_model: int = 2,
+        require_real_provider: bool = False
     ) -> LLMResponse:
         """
         Executa a geração através de uma cadeia de modelos com resiliência total.
         """
-        model_chain = [model] + (fallback_models or ["gpt-4o-mini", "gemini-2.5-flash"])
+        model_chain = [model] + (fallback_models if fallback_models is not None else ["gpt-4o-mini", "gemini-2.5-flash"])
         start_time = time.perf_counter()
 
         last_error = None
@@ -95,6 +96,9 @@ class KonigLLMRouter:
                     last_error = e
                     print(f"⚠️ [LLM Router] Erro em {current_model} (Tentativa {attempt+1}/{max_retries_per_model}): {e}")
                     time.sleep(0.5 * (2 ** attempt))  # Exponential backoff
+
+        if require_real_provider:
+            raise RuntimeError("All real LLM providers failed") from last_error
 
         # Se todos os modelos reais falharem ou não houver API key configurada,
         # geramos fallback gracioso mantendo a integridade do pipeline:
