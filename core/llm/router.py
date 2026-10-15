@@ -23,6 +23,8 @@ class LLMResponse(BaseModel):
     cost_usd: float
     fallback_occurred: bool = False
     execution_time_ms: float = 0.0
+    verified_provider_call: bool = False
+    usage_is_estimated: bool = False
 
 
 class KonigLLMRouter:
@@ -84,7 +86,9 @@ class KonigLLMRouter:
                         completion_tokens=out_tokens,
                         cost_usd=record.cost_usd,
                         fallback_occurred=is_fallback,
-                        execution_time_ms=elapsed
+                        execution_time_ms=elapsed,
+                        verified_provider_call=True,
+                        usage_is_estimated=False
                     )
 
                 except Exception as e:
@@ -99,14 +103,16 @@ class KonigLLMRouter:
         in_t = self.synapse_engine.estimate_tokens(prompt + system_prompt)
         out_t = self.synapse_engine.estimate_tokens(fallback_text)
 
-        rec = self.cost_manager.record_usage(agent_signature, model, in_t, out_t)
+        # Synthetic fallback is not a billable provider call.
         return LLMResponse(
             content=fallback_text,
             model_used=f"{model} (Simulated Fallback)",
             prompt_tokens=in_t,
             completion_tokens=out_t,
-            cost_usd=rec.cost_usd,
+            cost_usd=0.0,
             fallback_occurred=True,
+            verified_provider_call=False,
+            usage_is_estimated=True,
             execution_time_ms=elapsed
         )
 
@@ -144,8 +150,5 @@ class KonigLLMRouter:
             except Exception as e:
                 raise e
 
-        # Fallback determinístico offline
-        in_tokens = self.synapse_engine.estimate_tokens(prompt + system_prompt)
-        out_content = f"# Output gerado por {model}\nConteúdo estruturado pronto para os Quality Gates."
-        out_tokens = self.synapse_engine.estimate_tokens(out_content)
-        return out_content, in_tokens, out_tokens
+        # Do not silently pass synthetic text as a real provider response.
+        raise RuntimeError("No configured LLM provider available")
