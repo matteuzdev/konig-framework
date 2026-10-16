@@ -14,8 +14,14 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
+
+# Garante que o diretório raiz do repositório esteja no sys.path mesmo se executado de fora
+REPO_DIR = Path(__file__).resolve().parent
+if str(REPO_DIR) not in sys.path:
+    sys.path.insert(0, str(REPO_DIR))
 
 # Garante saída UTF-8 no console Windows
 if sys.platform == "win32":
@@ -227,7 +233,7 @@ def cmd_edit(args: argparse.Namespace) -> None:
     if symbol_name:
         print(f"🔍 Símbolo Alvo: [{symbol_name}]")
 
-    engine = HyperEditEngine(root_dir=".")
+    engine = HyperEditEngine(root_dir=str(REPO_DIR))
     try:
         diff_res, status_msg = engine.edit(
             file_path=file_path,
@@ -249,14 +255,15 @@ def cmd_daemon(args: argparse.Namespace) -> None:
     port = args.port or 7331
     host = args.host or "127.0.0.1"
     open_browser = getattr(args, "open", False)
-    run_daemon(root_dir=".", host=host, port=port, open_browser=open_browser)
+    repo_root = getattr(args, "root", None) or str(REPO_DIR)
+    run_daemon(root_dir=repo_root, host=host, port=port, open_browser=open_browser)
 
 
 def cmd_undo(args: argparse.Namespace) -> None:
     """Restaura um arquivo para o estado anterior usando o backup .undo do Hyper-Engine."""
     from core.hyper_engine.edit_engine import HyperEditEngine
     file_path = args.file
-    engine = HyperEditEngine(root_dir=".")
+    engine = HyperEditEngine(root_dir=str(REPO_DIR))
     if engine.undo(file_path):
         print(f"\n⏪ [ROLLBACK CONCLUÍDO] Arquivo '{file_path}' restaurado com sucesso a partir de .undo.")
     else:

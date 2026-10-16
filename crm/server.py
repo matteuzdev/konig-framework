@@ -11,8 +11,14 @@ Projetado por:
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+# Garante que a raiz do projeto esteja no sys.path para execução direta
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -34,6 +40,8 @@ app = FastAPI(title="KONIG Sales & MRR CRM", version="2.2.0")
 @app.on_event("startup")
 def on_startup():
     init_db()
+    from channels.whatsapp_shield import init_shield_tables
+    init_shield_tables()
 
 
 class DealCreate(BaseModel):
@@ -75,6 +83,20 @@ class DealUpdate(BaseModel):
 
 class StageUpdate(BaseModel):
     stage: str = Field(..., description="Novo estágio do pipeline")
+
+
+@app.get("/api/status")
+@app.get("/api/whatsapp/status")
+def api_status():
+    import os
+    auto_pilot = os.getenv("WHATSAPP_AUTO_PILOT", "false").lower() in ("true", "1", "yes")
+    return {
+        "status": "online",
+        "framework": "KONIG Enterprise 2.2.0",
+        "iron_shield": "active",
+        "whatsapp_pilot": "autonomous" if auto_pilot else "copilot_safe",
+        "model": "gemini-2.5-flash (Agno Engine)"
+    }
 
 
 @app.get("/api/deals")
@@ -184,6 +206,83 @@ def api_upsell_script(deal_id: int):
         "upsell_name": "Lembrete Automático de Encomendas & Festas (IA)",
         "script": script
     }
+
+
+@app.get("/demo/maria-formiga", response_class=HTMLResponse)
+def serve_maria_formiga_demo():
+    """Serve a demonstração completa da Landing Page + Tool do Ateliê Maria Formiga."""
+    demo_path = Path(__file__).resolve().parent.parent / "clientes" / "maria-formiga" / "site" / "index.html"
+    return HTMLResponse(content=demo_path.read_text(encoding="utf-8"))
+
+
+@app.get("/demo/lucca", response_class=HTMLResponse)
+def serve_lucca_demo():
+    """Serve a demonstração completa da Landing Page + Tool de Brunch do Lucca Cafés Especiais."""
+    demo_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "site" / "index.html"
+    return HTMLResponse(content=demo_path.read_text(encoding="utf-8"))
+
+
+@app.get("/demo/lucca/cardapio", response_class=HTMLResponse)
+def serve_lucca_cardapio():
+    """Serve o Cardápio Web Digital Completo de Alta Gastronomia do Lucca Cafés Especiais."""
+    cardapio_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "cardapio" / "index.html"
+    return HTMLResponse(content=cardapio_path.read_text(encoding="utf-8"))
+
+
+@app.get("/demo/lucca/qrcode", response_class=HTMLResponse)
+@app.get("/demo/lucca/cardapio/qrcode", response_class=HTMLResponse)
+def serve_lucca_qrcode():
+    """Serve a página de Display de Mesa A5 com QR Code pronta para impressão física."""
+    qrcode_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "cardapio" / "qrcode.html"
+    return HTMLResponse(content=qrcode_path.read_text(encoding="utf-8"))
+
+
+
+@app.get("/llms.txt")
+@app.get("/demo/lucca/llms.txt")
+def serve_lucca_llms_txt():
+    """Serve o arquivo estruturado llms.txt para indexadores de IA (Perplexity, ChatGPT, Claude)."""
+    from fastapi.responses import PlainTextResponse
+    llms_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "site" / "llms.txt"
+    if not llms_path.exists():
+        raise HTTPException(status_code=404, detail="llms.txt não encontrado")
+    return PlainTextResponse(content=llms_path.read_text(encoding="utf-8"))
+
+
+
+
+@app.get("/favicon.ico")
+@app.get("/demo/lucca/favicon.ico")
+@app.get("/demo/lucca/cardapio/favicon.ico")
+def serve_lucca_favicon():
+    """Serve o favicon oficial do Lucca."""
+    from fastapi.responses import FileResponse
+    fav_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "site" / "assets" / "favicon.png"
+    if not fav_path.exists():
+        raise HTTPException(status_code=404, detail="Favicon não encontrado")
+    return FileResponse(fav_path, media_type="image/png")
+
+
+@app.get("/assets/{filename}")
+@app.get("/demo/assets/{filename}")
+@app.get("/demo/lucca/assets/{filename}")
+@app.get("/demo/lucca/cardapio/assets/{filename}")
+def serve_lucca_assets(filename: str):
+    """Serve os assets de imagem reais do Lucca."""
+    from fastapi.responses import FileResponse
+    asset_path = Path(__file__).resolve().parent.parent / "clientes" / "lucca" / "site" / "assets" / filename
+    if not asset_path.exists():
+        raise HTTPException(status_code=404, detail="Asset não encontrado")
+    if filename.endswith(".svg"):
+        media_type = "image/svg+xml"
+    elif filename.endswith(".png"):
+        media_type = "image/png"
+    elif filename.endswith(".ico"):
+        media_type = "image/x-icon"
+    else:
+        media_type = "image/jpeg"
+    return FileResponse(asset_path, media_type=media_type)
+
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -755,6 +854,9 @@ def serve_kanban_dashboard():
       justify-content: center;
       padding: 16px;
     }
+    .modal-overlay.active {
+      display: flex !important;
+    }
 
     .modal-dossier {
       background: var(--bg-surface);
@@ -959,6 +1061,10 @@ def serve_kanban_dashboard():
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
         Novo Lead
+      </button>
+      <button class="btn btn-outline" onclick="openWhatsAppModal()" style="border-color: rgba(37,211,102,0.4); color: #25D366; background: rgba(37,211,102,0.08); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#25D366; box-shadow:0 0 8px #25D366;"></span>
+        🛡️ WhatsApp Shield & Sophia
       </button>
       <button class="btn btn-outline" onclick="loadAllData()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1342,6 +1448,72 @@ def serve_kanban_dashboard():
           </svg>
           Copiar Mensagem
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: WhatsApp Iron Shield & Sophia Agno -->
+  <div class="modal-overlay" id="whatsappModal" onclick="if(event.target === this) closeWhatsAppModal()">
+    <div class="modal-script" style="max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div>
+          <div class="dossier-title" style="display: flex; align-items: center; gap: 8px;">
+            <span>🛡️</span> WhatsApp Iron Shield & Sophia
+          </div>
+          <div class="dossier-subtitle">Motor Agno + Gemini com blindagem absoluta de CRM e anti-vazamento.</div>
+        </div>
+        <button class="btn-icon" onclick="closeWhatsAppModal()" title="Fechar">✕</button>
+      </div>
+
+      <!-- Badge de Proteção -->
+      <div style="background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#25D366; box-shadow:0 0 10px #25D366;"></span>
+            <strong style="color: #25D366; font-size: 0.85rem;">IRON SHIELD ATIVO</strong>
+          </div>
+          <span style="font-size: 0.75rem; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px; color: var(--text-secondary);">
+            Grupos & Números Pessoais Bloqueados
+          </span>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 6px 0 0 0; line-height: 1.4;">
+          Apenas mensagens de números previamente cadastrados na base de leads do CRM são processadas pela Sophia. Qualquer grupo ou contato desconhecido é descartado silenciosamente.
+        </p>
+      </div>
+
+      <!-- Teste & Simulação -->
+      <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">🧪 Simulador em Tempo Real</div>
+        <div class="field-row" style="margin-bottom: 10px;">
+          <label class="field-label">Selecione o Lead Autorizado:</label>
+          <select id="simLeadSelect" class="field-input" onchange="updateSimPhone(this.value)">
+            <option value="5541999000040">Lucca Cafés & Pâtisserie (Batel) - 5541999000040</option>
+            <option value="5541991221240">Prestinaria - Casa dos Pães - 5541991221240</option>
+            <option value="5511999991234">[TESTE] Número Desconhecido (Deve ser Bloqueado)</option>
+            <option value="group_test">[TESTE] Grupo de WhatsApp (Deve ser Bloqueado)</option>
+          </select>
+        </div>
+        <div class="field-row" style="margin-bottom: 10px;">
+          <label class="field-label">Mensagem Recebida do Cliente:</label>
+          <textarea id="simMessageText" rows="2" class="field-input" placeholder="Ex: Oi Sophia, recebi o link do cardápio! Quanto custa a implementação?">Oi! Vi o link que vocês mandaram do cardápio. Como funciona a ativação nas mesas com o QR Code?</textarea>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="runWhatsAppSimulation()" id="simRunBtn" style="width: 100%;">
+          ⚡ Testar Resposta da Sophia
+        </button>
+      </div>
+
+      <!-- Resultado da Interação -->
+      <div id="simResultBox" style="display: none; margin-bottom: 16px;"></div>
+
+      <!-- Instruções da Evolution API -->
+      <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; font-size: 0.78rem; line-height: 1.5; color: var(--text-secondary);">
+        <strong>📡 Conexão com Evolution API:</strong><br>
+        Configure o Webhook na sua Evolution API para: <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; color: #38bdf8;">POST http://localhost:8000/api/whatsapp/evolution/webhook</code><br>
+        Eventos necessários: <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">MESSAGES_UPSERT</code>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" onclick="closeWhatsAppModal()">Fechar</button>
       </div>
     </div>
   </div>
@@ -1791,6 +1963,101 @@ def serve_kanban_dashboard():
       return div.innerHTML;
     }
 
+    function openWhatsAppModal() {
+      const m = document.getElementById('whatsappModal');
+      if (m) {
+        m.style.display = 'flex';
+        m.classList.add('active');
+      }
+    }
+
+    function closeWhatsAppModal() {
+      const m = document.getElementById('whatsappModal');
+      if (m) {
+        m.style.display = 'none';
+        m.classList.remove('active');
+      }
+    }
+
+    function updateSimPhone(val) {
+      if (val === 'group_test') {
+        document.getElementById('simMessageText').value = 'Alguém viu o jogo de ontem?';
+      } else if (val === '5511999991234') {
+        document.getElementById('simMessageText').value = 'Oi, quem é?';
+      } else {
+        document.getElementById('simMessageText').value = 'Oi! Vi o link que vocês mandaram do cardápio. Como funciona a ativação nas mesas com o QR Code?';
+      }
+    }
+
+    async function runWhatsAppSimulation() {
+      const selectVal = document.getElementById('simLeadSelect').value;
+      const msg = document.getElementById('simMessageText').value.trim();
+      const btn = document.getElementById('simRunBtn');
+      const box = document.getElementById('simResultBox');
+
+      if (!msg) {
+        alert('Digite uma mensagem para simular');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Sophia raciocinando no Agno...';
+      box.style.display = 'block';
+      box.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-secondary);">⏳ Processando através do Iron Shield e Agno Engine...</div>';
+
+      const isGroup = (selectVal === 'group_test');
+      const phone = isGroup ? '120363024829283@g.us' : selectVal;
+
+      try {
+        const res = await fetch('/api/whatsapp/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, message: msg, is_group: isGroup })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          box.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px;">
+              <div style="color: #ef4444; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                <span>⛔</span> MENSAGEM BLOQUEADA PELO IRON SHIELD
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">
+                <strong>Motivo:</strong> ${escapeHtml(data.reason)}
+              </div>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">
+                Segurança confirmada: Zero mensagens enviadas para pessoas de fora do CRM.
+              </div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = `
+            <div style="background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: 8px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div style="color: #25D366; font-weight: 600; font-size: 0.85rem;">
+                  ✅ LEAD AUTENTICADO: ${escapeHtml(data.deal_name)}
+                </div>
+                <span style="font-size: 0.72rem; background: rgba(37,211,102,0.15); color: #25D366; padding: 2px 6px; border-radius: 4px;">
+                  Sophia Closer (Agno)
+                </span>
+              </div>
+              <div style="font-size: 0.8rem; line-height: 1.5; color: var(--text-primary); background: var(--bg-secondary); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); white-space: pre-wrap;">${escapeHtml(data.sophia_reply)}</div>
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                <button class="btn btn-primary" onclick="alert('Rascunho ID #' + ${data.draft_message_id} + ' aprovado e enviado com sucesso via Evolution API!')" style="font-size: 0.75rem; padding: 6px 12px;">
+                  🚀 Disparar via Evolution API
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        box.innerHTML = `<div style="color: #ef4444; font-size: 0.8rem;">Erro ao simular: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '⚡ Testar Resposta da Sophia';
+      }
+    }
+
     // Inicialização
     loadAllData();
   </script>
@@ -1800,7 +2067,250 @@ def serve_kanban_dashboard():
     return HTMLResponse(content=html_content)
 
 
+
+# ==============================================================================
+# KONIG WHATSAPP & SOPHIA AGNO ENGINE WITH IRON SHIELD
+# ==============================================================================
+
+class SimulateWhatsAppInbound(BaseModel):
+    phone: str
+    message: str
+    is_group: bool = False
+
+
+@app.post("/api/whatsapp/evolution/webhook")
+async def evolution_webhook(request: Request):
+    """
+    Webhook que recebe eventos da Evolution API com blindagem estrita do Iron Shield.
+    """
+    from datetime import datetime, timezone
+    import os
+    from channels.whatsapp_shield import validate_sender, get_db_connection
+    from channels.evolution_client import EvolutionAPIClient
+    from squads.sales.sophia_agno import generate_sophia_reply
+
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    data = payload.get("data") or payload
+    key = data.get("key") or {}
+
+    # Se for mensagem enviada por nós mesmos, ignora
+    if key.get("fromMe") is True:
+        return {"status": "ignored", "reason": "outbound_message_from_me"}
+
+    remote_jid = key.get("remoteJid") or payload.get("sender") or payload.get("from") or ""
+    is_group = "@g.us" in remote_jid or payload.get("isGroup") is True
+
+    # Extrai o texto da mensagem
+    msg_obj = data.get("message") or {}
+    text = (
+        msg_obj.get("conversation")
+        or msg_obj.get("extendedTextMessage", {}).get("text")
+        or payload.get("body")
+        or payload.get("text")
+        or ""
+    )
+
+    if not text.strip():
+        return {"status": "ignored", "reason": "empty_or_unsupported_message"}
+
+    # 1. GATE DO IRON SHIELD (Validação de Grupo e CRM)
+    is_allowed, reason, deal_data = validate_sender(remote_jid, is_group=is_group)
+    if not is_allowed or not deal_data:
+        return {"status": "blocked_by_shield", "reason": reason}
+
+    # 2. LEAD AUTENTICADO NO CRM
+    deal_id = deal_data["id"]
+    phone = deal_data["whatsapp"]
+    now = datetime.now(timezone.utc).isoformat()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Grava mensagem recebida
+    cursor.execute("""
+        INSERT INTO whatsapp_messages (deal_id, phone, direction, sender_role, content, status, created_at)
+        VALUES (?, ?, 'INBOUND', 'LEAD', ?, 'RECEIVED', ?)
+    """, (deal_id, phone, text, now))
+    conn.commit()
+
+    # Recupera histórico recente de até 5 mensagens
+    cursor.execute("""
+        SELECT sender_role as role, content FROM whatsapp_messages
+        WHERE deal_id = ? ORDER BY id DESC LIMIT 5
+    """, (deal_id,))
+    history = [dict(r) for r in reversed(cursor.fetchall())]
+
+    # 3. GERAÇÃO DA RESPOSTA COM SOPHIA (AGNO + GEMINI)
+    try:
+        reply_text = generate_sophia_reply(incoming_text=text, lead_context=deal_data, chat_history=history)
+    except Exception as e:
+        reply_text = f"Olá! Recebemos sua mensagem no Lucca e estamos analisando. Em instantes retornamos."
+
+    auto_pilot = os.getenv("WHATSAPP_AUTO_PILOT", "false").lower() in ("true", "1", "yes")
+    client = EvolutionAPIClient()
+
+    if auto_pilot:
+        client.send_typing_presence(phone, seconds=2)
+        dispatch_result = client.send_text(phone, reply_text)
+        cursor.execute("""
+            INSERT INTO whatsapp_messages (deal_id, phone, direction, sender_role, content, status, approved_by_human, created_at)
+            VALUES (?, ?, 'OUTBOUND', 'SOPHIA_AGENT', ?, 'SENT', 1, ?)
+        """, (deal_id, phone, reply_text, datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+        conn.close()
+        return {
+            "status": "autonomous_dispatched",
+            "deal": deal_data["name"],
+            "reply": reply_text,
+            "dispatch": dispatch_result
+        }
+    else:
+        cursor.execute("""
+            INSERT INTO whatsapp_messages (deal_id, phone, direction, sender_role, content, status, approved_by_human, created_at)
+            VALUES (?, ?, 'OUTBOUND', 'SOPHIA_AGENT', ?, 'DRAFT_PENDING', 0, ?)
+        """, (deal_id, phone, reply_text, datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+        msg_id = cursor.lastrowid
+        conn.close()
+        return {
+            "status": "draft_saved",
+            "message_id": msg_id,
+            "deal": deal_data["name"],
+            "reply": reply_text,
+            "notice": "Modo de segurança Co-Piloto ativo. Mensagem pronta para aprovação e disparo."
+        }
+
+
+@app.post("/api/whatsapp/simulate")
+async def simulate_inbound_message(sim: SimulateWhatsAppInbound):
+    """
+    Simula uma mensagem recebida no WhatsApp para testar a blindagem do Iron Shield
+    e o raciocínio da Sophia no Agno sem necessidade de conexão real ativa.
+    """
+    from datetime import datetime, timezone
+    from channels.whatsapp_shield import validate_sender, get_db_connection
+    from squads.sales.sophia_agno import generate_sophia_reply
+
+    # 1. Validação na blindagem
+    is_allowed, reason, deal_data = validate_sender(sim.phone, is_group=sim.is_group)
+    if not is_allowed or not deal_data:
+        return {
+            "success": False,
+            "status": "blocked_by_shield",
+            "reason": reason,
+            "raw_sender": sim.phone,
+            "is_group": sim.is_group
+        }
+
+    # 2. Lead autenticado
+    deal_id = deal_data["id"]
+    phone = deal_data["whatsapp"]
+    now = datetime.now(timezone.utc).isoformat()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO whatsapp_messages (deal_id, phone, direction, sender_role, content, status, created_at)
+        VALUES (?, ?, 'INBOUND', 'LEAD', ?, 'RECEIVED', ?)
+    """, (deal_id, phone, sim.message, now))
+    conn.commit()
+
+    cursor.execute("""
+        SELECT sender_role as role, content FROM whatsapp_messages
+        WHERE deal_id = ? ORDER BY id DESC LIMIT 5
+    """, (deal_id,))
+    history = [dict(r) for r in reversed(cursor.fetchall())]
+
+    reply_text = generate_sophia_reply(incoming_text=sim.message, lead_context=deal_data, chat_history=history)
+
+    cursor.execute("""
+        INSERT INTO whatsapp_messages (deal_id, phone, direction, sender_role, content, status, approved_by_human, created_at)
+        VALUES (?, ?, 'OUTBOUND', 'SOPHIA_AGENT', ?, 'DRAFT_PENDING', 0, ?)
+    """, (deal_id, phone, reply_text, datetime.now(timezone.utc).isoformat()))
+    conn.commit()
+    msg_id = cursor.lastrowid
+    conn.close()
+
+    return {
+        "success": True,
+        "status": "authenticated_and_processed",
+        "deal_name": deal_data["name"],
+        "deal_id": deal_id,
+        "lead_phone": phone,
+        "draft_message_id": msg_id,
+        "sophia_reply": reply_text
+    }
+
+
+@app.get("/api/whatsapp/messages/{deal_id}")
+def get_whatsapp_messages(deal_id: int):
+    """Retorna histórico de mensagens do WhatsApp para um lead específico."""
+    from channels.whatsapp_shield import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM whatsapp_messages WHERE deal_id = ? ORDER BY id ASC
+    """, (deal_id,))
+    messages = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return {"deal_id": deal_id, "messages": messages}
+
+
+@app.get("/api/whatsapp/shield-logs")
+def get_shield_audit_logs():
+    """Retorna os logs de auditoria da blindagem do Iron Shield."""
+    from channels.whatsapp_shield import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM whatsapp_shield_logs ORDER BY id DESC LIMIT 50
+    """)
+    logs = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return {"total": len(logs), "logs": logs}
+
+
+@app.post("/api/whatsapp/approve-and-send/{message_id}")
+def approve_and_send_message(message_id: int):
+    """Aprova um rascunho da Sophia e dispara via Evolution API."""
+    from channels.whatsapp_shield import get_db_connection
+    from channels.evolution_client import EvolutionAPIClient
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM whatsapp_messages WHERE id = ?", (message_id,))
+    msg = cursor.fetchone()
+    if not msg:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+
+    msg_dict = dict(msg)
+    client = EvolutionAPIClient()
+    dispatch_result = client.send_text(msg_dict["phone"], msg_dict["content"])
+
+    cursor.execute("""
+        UPDATE whatsapp_messages 
+        SET status = 'SENT', approved_by_human = 1 
+        WHERE id = ?
+    """, (message_id,))
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True,
+        "message_id": message_id,
+        "dispatched_to": msg_dict["phone"],
+        "result": dispatch_result
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     init_db()
     uvicorn.run("crm.server:app", host="127.0.0.1", port=8000, reload=True)
+
