@@ -178,8 +178,13 @@ class KonigSandbox:
             temp_path = Path(temp_file.name)
 
         # 3. Execução em subprocesso isolado
-        env = os.environ.copy()
+        # Limit environment passed to child; this is NOT a security sandbox.
+        allowed = {"PATH", "SYSTEMROOT", "WINDIR", "TMP", "TEMP", "HOME", "USERPROFILE", "LANG", "LC_ALL"}
+        env = {key: val for key, val in os.environ.items() if key.upper() in allowed}
         if custom_env:
+            denied = ("KEY", "SECRET", "TOKEN", "PASSWORD", "CREDENTIAL")
+            if any(any(part in key.upper() for part in denied) for key in custom_env):
+                raise ValueError("Credentials cannot be injected into sandbox custom_env")
             env.update(custom_env)
         # Garante UTF-8 no Python filho
         env["PYTHONIOENCODING"] = "utf-8"
