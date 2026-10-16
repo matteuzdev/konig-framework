@@ -35,6 +35,11 @@ class UndoRequest(BaseModel):
     file: str = Field(..., description="Caminho do arquivo a ser revertido")
 
 
+class SaveRequest(BaseModel):
+    file: str = Field(..., description="Caminho relativo do arquivo no repositório")
+    content: str = Field(..., description="Novo conteúdo a ser salvo no arquivo")
+
+
 class FileWatcher:
     """
     Watcher de arquivos portátil e de baixo consumo de recursos (Zero Dependências Externas).
@@ -201,6 +206,69 @@ def create_hyper_engine_app(root_dir: str = ".") -> FastAPI:
                 detail=f"Nenhum backup .undo encontrado para '{req.file}'.",
             )
         return {"success": True, "file": req.file, "message": "Rollback concluído com sucesso."}
+
+    @app.get("/api/tree")
+    def get_tree():
+        """Retorna lista de todos os arquivos indexados no repositório."""
+        files = list(indexer.files_index.keys())
+        return {"files": sorted(files), "total": len(files)}
+
+    @app.get("/api/file")
+    def get_file_content(path: str = Query(..., description="Caminho relativo do arquivo")):
+        """Lê o conteúdo real de um arquivo do repositório."""
+        clean_path = path.replace("\\", "/").lstrip("/")
+        full_path = os.path.normpath(os.path.join(abs_root, clean_path))
+        if not full_path.startswith(abs_root):
+            raise HTTPException(status_code=403, detail="Acesso negado fora da raiz do projeto.")
+        if not os.path.isfile(full_path):
+            raise HTTPException(status_code=404, detail=f"Arquivo '{clean_path}' não encontrado.")
+        try:
+            with open(full_path, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            ext = os.path.splitext(full_path)[1].lower()
+            lang_map = {
+                ".py": "python",
+                ".js": "javascript",
+                ".ts": "typescript",
+                ".html": "html",
+                ".css": "css",
+                ".json": "json",
+                ".md": "markdown",
+                ".yaml": "yaml",
+                ".yml": "yaml",
+                ".sh": "shell",
+            }
+            return {
+                "path": clean_path,
+                "content": content,
+                "language": lang_map.get(ext, "plaintext"),
+                "size_bytes": len(content.encode("utf-8")),
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/api/save")
+    def save_file_content(req: SaveRequest):
+        """Salva o conteúdo no arquivo com backup .undo automático."""
+        clean_path = req.file.replace("\\", "/").lstrip("/")
+        full_path = os.path.normpath(os.path.join(abs_root, clean_path))
+        if not full_path.startswith(abs_root):
+            raise HTTPException(status_code=403, detail="Acesso negado fora da raiz do projeto.")
+        try:
+            if os.path.isfile(full_path):
+                undo_path = full_path + ".undo"
+                with open(full_path, "r", encoding="utf-8", errors="replace") as f:
+                    old_content = f.read()
+                with open(undo_path, "w", encoding="utf-8") as f:
+                    f.write(old_content)
+
+            with open(full_path, "w", encoding="utf-8") as f:
+                f.write(req.content)
+
+            indexer.index_repository(force_reindex=False)
+            return {"success": True, "file": clean_path, "message": "Arquivo salvo com sucesso."}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     return app
 
