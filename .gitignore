@@ -28,10 +28,21 @@ Thumbs.db
 .coverage
 htmlcov/
 
+# Databases & Local State
+*.db
+*.sqlite
+*.sqlite3
+
+# Private Clients & Local Leads (Confidential)
+clientes/
+crm/seed_real_leads.py
+crm/*.db
+crm.db
+scratch_extract.py
+
 # Build & Distribution
 dist/
 build/
 *.egg-info/
 
-# Local Sites, Apps & Projects (Keep out of public framework repo)
-site/
+

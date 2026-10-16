@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="konigCrown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <linearGradient id="lionGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#030308" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo Sutil de Brilho -->
+  <polygon points="16,3 25,7 28,13 25,20 21,27 16,30 11,27 7,20 4,13 7,7" fill="url(#lionGlow)" stroke="none" />
+
+  <!-- Coroa Soberana (King / König Crown Crest) -->
+  <path d="M7 8 L11 2.5 L16 6.5 L21 2.5 L25 8" stroke="url(#konigCrown)" stroke-width="2" />
+
+  <!-- Silhueta da Juba e Face do Leão de Judá -->
+  <path d="M7 8 L3.5 13 L6.5 19.5 L11 26.5 L16 30 L21 26.5 L25.5 19.5 L28.5 13 L25 8" stroke="url(#konigCrown)" stroke-width="2" />
+
+  <!-- Facetas Nobres da Testa e Têmporas -->
+  <path d="M11 2.5 L16 11.5 L21 2.5" stroke="url(#konigCrown)" stroke-width="1.6" />
+  <path d="M3.5 13 L10.5 14.5 L16 11.5 L21.5 14.5 L28.5 13" stroke="url(#konigCrown)" stroke-width="1.6" />
+
+  <!-- Olhos Determinados e Ponte do Nariz -->
+  <path d="M10.5 14.5 L13.5 17.5 L16 15.5 L18.5 17.5 L21.5 14.5" stroke="url(#konigCrown)" stroke-width="1.6" />
+  <line x1="10.5" y1="16.5" x2="13" y2="18" stroke="url(#konigCrown)" stroke-width="1.8" />
+  <line x1="21.5" y1="16.5" x2="19" y2="18" stroke="url(#konigCrown)" stroke-width="1.8" />
+
+  <!-- Focinho, Bigode e Mandíbula Real -->
+  <path d="M13.5 17.5 L13.5 22.5 L16 24.5 L18.5 22.5 L18.5 17.5" stroke="url(#konigCrown)" stroke-width="1.8" fill="url(#lionGlow)" />
+  <line x1="16" y1="24.5" x2="16" y2="27.5" stroke="url(#konigCrown)" stroke-width="1.8" />
+  <path d="M6.5 19.5 L13.5 22.5 M25.5 19.5 L18.5 22.5" stroke="url(#konigCrown)" stroke-width="1.5" />
+  <path d="M11 26.5 L13.5 24 M21 26.5 L18.5 24" stroke="url(#konigCrown)" stroke-width="1.5" />
+</svg>
