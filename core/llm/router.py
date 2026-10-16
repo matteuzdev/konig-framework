@@ -23,6 +23,8 @@ class LLMResponse(BaseModel):
     cost_usd: float
     fallback_occurred: bool = False
     execution_time_ms: float = 0.0
+    verified_provider_call: bool = False
+    usage_is_estimated: bool = False
 
 
 class KonigLLMRouter:
@@ -46,12 +48,13 @@ class KonigLLMRouter:
         fallback_models: Optional[List[str]] = None,
         agent_signature: str = "[System - Engine]",
         temperature: float = 0.7,
-        max_retries_per_model: int = 2
+        max_retries_per_model: int = 2,
+        require_real_provider: bool = False
     ) -> LLMResponse:
         """
         Executa a geração através de uma cadeia de modelos com resiliência total.
         """
-        model_chain = [model] + (fallback_models or ["gpt-4o-mini", "gemini-2.5-flash"])
+        model_chain = [model] + (fallback_models if fallback_models is not None else ["gpt-4o-mini", "gemini-2.5-flash"])
         start_time = time.perf_counter()
 
         last_error = None
@@ -84,13 +87,18 @@ class KonigLLMRouter:
                         completion_tokens=out_tokens,
                         cost_usd=record.cost_usd,
                         fallback_occurred=is_fallback,
-                        execution_time_ms=elapsed
+                        execution_time_ms=elapsed,
+                        verified_provider_call=True,
+                        usage_is_estimated=False
                     )
 
                 except Exception as e:
                     last_error = e
                     print(f"⚠️ [LLM Router] Erro em {current_model} (Tentativa {attempt+1}/{max_retries_per_model}): {e}")
                     time.sleep(0.5 * (2 ** attempt))  # Exponential backoff
+
+        if require_real_provider:
+            raise RuntimeError("All real LLM providers failed") from last_error
 
         # Se todos os modelos reais falharem ou não houver API key configurada,
         # geramos fallback gracioso mantendo a integridade do pipeline:
@@ -99,14 +107,16 @@ class KonigLLMRouter:
         in_t = self.synapse_engine.estimate_tokens(prompt + system_prompt)
         out_t = self.synapse_engine.estimate_tokens(fallback_text)
 
-        rec = self.cost_manager.record_usage(agent_signature, model, in_t, out_t)
+        # Synthetic fallback is not a billable provider call.
         return LLMResponse(
             content=fallback_text,
             model_used=f"{model} (Simulated Fallback)",
             prompt_tokens=in_t,
             completion_tokens=out_t,
-            cost_usd=rec.cost_usd,
+            cost_usd=0.0,
             fallback_occurred=True,
+            verified_provider_call=False,
+            usage_is_estimated=True,
             execution_time_ms=elapsed
         )
 
@@ -144,8 +154,5 @@ class KonigLLMRouter:
             except Exception as e:
                 raise e
 
-        # Fallback determinístico offline
-        in_tokens = self.synapse_engine.estimate_tokens(prompt + system_prompt)
-        out_content = f"# Output gerado por {model}\nConteúdo estruturado pronto para os Quality Gates."
-        out_tokens = self.synapse_engine.estimate_tokens(out_content)
-        return out_content, in_tokens, out_tokens
+        # Do not silently pass synthetic text as a real provider response.
+        raise RuntimeError("No configured LLM provider available")

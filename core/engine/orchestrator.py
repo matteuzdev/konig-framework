@@ -202,6 +202,33 @@ class KonigOrchestrator:
 
         return output_content
 
+    def execute_agent_step_verified(
+        self, agent: KonigAgent, task: KonigTask, accumulated_context: str = ""
+    ):
+        """Opt-in live LLM execution; never falls back to template output.
+
+        Existing execute_agent_step and engineering Waves/SOPs are unchanged.
+        This returns the provider response and does not mark the task approved.
+        """
+        prompt = (
+            f"Task: {task.name}\n"
+            f"Description: {task.description}\n"
+            f"Expected output: {task.expected_output}\n"
+            f"Context: {accumulated_context}"
+        )
+        response = self.llm_router.generate(
+            prompt=prompt,
+            system_prompt=(
+                f"You are {agent.name}, role {agent.role}. "
+                "Follow the task SOPs and provide evidence for factual claims."
+            ),
+            agent_signature=agent.signature,
+            require_real_provider=True,
+        )
+        if not response.verified_provider_call:
+            raise RuntimeError("Verified execution requires a real provider")
+        return response
+
     def _extract_python_code(self, text: str) -> Optional[str]:
         """Extrai o bloco de código Python formatado em markdown."""
         matches = re.findall(r"```python\s*([\s\S]*?)\s*```", text)
