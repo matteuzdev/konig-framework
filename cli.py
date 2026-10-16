@@ -271,12 +271,42 @@ def cmd_undo(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def cmd_ide(args: argparse.Namespace) -> None:
+    """Inicia a IDE Desktop Nativa KONIG Hyper-Studio."""
+    import subprocess
+    from pathlib import Path
+    
+    ide_path = Path(r"C:\Users\hiant\KONIG_IDE\konig.exe")
+    if not ide_path.exists():
+        ide_path = Path(r"C:\Users\hiant\KONIG_IDE\VSCodium.exe")
+    
+    if not ide_path.exists():
+        print("❌ Erro: Binário da IDE não encontrado em C:\\Users\\hiant\\KONIG_IDE\\konig.exe")
+        return
+        
+    target_dir = args.dir or str(REPO_DIR)
+    print("\n🚀 Iniciando KONIG Hyper-Studio Desktop...")
+    print(f"   • Executável: {ide_path}")
+    print(f"   • Workspace: {target_dir}")
+    print("   • KRONOS Extension: data/extensions/konig-kronos (Ativo)")
+    print("   • Modos nativos: Ctrl+K (Fast Edit), Ctrl+I (Composer), Ctrl+L (Chat)")
+    
+    subprocess.Popen([str(ide_path), target_dir], close_fds=True)
+    print("✨ Janela desktop do KONIG Hyper-Studio aberta com sucesso!")
+
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="konig",
         description="KONIG Agentic Framework CLI — Motor industrial de orquestração de IA"
     )
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
+
+    # ide (KONIG Desktop IDE)
+    p_ide = subparsers.add_parser("ide", help="Inicia a IDE Desktop Nativa KONIG Hyper-Studio")
+    p_ide.add_argument("dir", nargs="?", default=None, help="Diretório do workspace a ser aberto (padrão: raiz do konig)")
+    p_ide.set_defaults(func=cmd_ide)
 
     # daemon (Hyper-Engine Local Daemon)
     p_daemon = subparsers.add_parser("daemon", help="Inicia o KONIG Hyper-Engine Daemon (servidor local de código com file watcher)")
