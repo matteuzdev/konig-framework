@@ -130,6 +130,7 @@
         <a href="#telegram-hub" class="nav-link">Telegram Mobile</a>
         <a href="#arquitetura" class="nav-link">Arquitetura</a>
         <a href="#benchmark" class="nav-link">Benchmark</a>
+        <a href="#faq" class="nav-link">FAQ</a>
       </nav>
 
       <div class="header-actions">
@@ -170,8 +171,7 @@
       </h1>
 
       <p class="hero-description animate-slide-up delay-1">
-        Governança determinística baseada em DAGs com execução em ondas paralelas.
-        Implante agentes de alta conversão no WhatsApp de clientes e comande squads completos de engenharia direto do Telegram.
+        O framework em Python para times de engenharia que precisam rodar múltiplos agentes em produção com execução determinística em waves paralelas (DAG), AST sandbox e conectividade nativa com WhatsApp e Telegram — sem loops caóticos e sem desperdício de tokens.
       </p>
 
       <div class="hero-cta-group animate-slide-up delay-2">
@@ -210,6 +210,9 @@
           </a>
           <a href="#whatsapp-demo" class="btn-secondary">
             <span>Ver WhatsApp em Ação</span>
+          </a>
+          <a href="https://github.com/matteuzdev/konig-framework" target="_blank" rel="noopener noreferrer" class="btn-outline">
+            <span>Código no GitHub</span>
           </a>
         </div>
       </div>
@@ -349,11 +352,11 @@
               <span class="badge-icon">🛡️</span>
               <span>WAVE 3 • ENTERPRISE GOVERNANCE</span>
             </div>
-            <div class="latency-pill purple">SOC2 • ZDR Certificado</div>
+            <div class="latency-pill purple">Arquitetura ZDR • AST Sandbox</div>
           </div>
           <h3>Blindagem SYNAPSE & AST Sentinel</h3>
           <p class="hyper-desc">
-            Zero retenção de dados (ZDR) em disco permanente, isolamento estrito via AST Sandbox e orquestração de memória de 4 zonas que elimina até 99.4% do desperdício de tokens do mercado.
+            Zero retenção de dados não autorizados (ZDR), isolamento estrito de código via AST Sandbox e orquestração de memória em 4 zonas (SYNAPSE) que reduz drasticamente o consumo desnecessário de tokens.
           </p>
 
           <!-- Calculadora Interativa de Economia SYNAPSE -->
@@ -379,8 +382,9 @@
               </div>
             </div>
             <div class="savings-banner" id="savingsBanner">
-              ⚡ Economia real: <b>$4.973,40 / mês</b> (99.47% menos compute desperdiçado)
+              ⚡ Economia estimada: <b>$4.973,40 / mês</b> (em comparação a pipelines sem poda semântica)
             </div>
+            <span class="card-caption" style="display:block; margin-top:8px; font-size:10px; opacity:0.75; text-align:center;">* Baseado em simulação de contexto bruto não comprimido de 100k tokens a $5.00/1M tokens.</span>
           </div>
 
           <div class="hyper-footer">
@@ -868,6 +872,79 @@
           <div class="c-line text-green">[OK] Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
           <div class="c-line text-green">[OK] Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
           <div class="c-line text-muted">Adaptadores Multi-IDE ativos: .antigravity, .cursor, .claude, .codex, .vscode</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ / Objeções e Validação Técnica -->
+  <section id="faq" class="faq-section">
+    <div class="content-wrapper">
+      <div class="section-title-block">
+        <span class="sub-label">Perguntas Frequentes & Validação Técnica</span>
+        <h2>Clareza e Governança Sem Amarras</h2>
+        <p>Respostas objetivas sobre funcionamento, segurança, modelos suportados e implantação do KONIG Framework.</p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">01</span>
+            <h3>Qual a diferença entre o KONIG e frameworks como CrewAI ou AutoGen?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>A maioria dos frameworks convencionais utiliza loops reativos ou sequências lineares simples, onde agentes podem entrar em ciclos caóticos de chamadas sem critério determinístico de parada. O KONIG utiliza o <strong>KRONOS Wave Engine</strong> — um Grafo Acíclico Dirigido (DAG) resolvido em ondas paralelas com barreira de sincronização. Se uma tarefa falha na asserção de teste (Exit 0), a wave seguinte não é disparada, garantindo previsibilidade industrial.</p>
+          </div>
+        </div>
+
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">02</span>
+            <h3>Como o AST Sandbox protege o servidor contra código gerado por IA?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>Antes de qualquer código gerado por agentes ser executado, o <strong>AST Sentinel</strong> inspeciona estaticamente a Árvore Sintática Abstrata do script. Chamadas perigosas como <code>shutil.rmtree</code>, comandos destrutivos de shell ou acessos arbitrários ao disco do host são bloqueados imediatamente. Quando homologado, o código roda em subprocessos isolados com limite rígido de RAM e timeout.</p>
+          </div>
+        </div>
+
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">03</span>
+            <h3>O KONIG exige GPUs locais ou funciona com provedores na nuvem?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>O framework é agnóstico à infraestrutura. Ele se integra perfeitamente a provedores na nuvem (Google Gemini, Anthropic Claude, OpenAI via LiteLLM) e a clusters locais ou servidores dedicados (via Ollama ou vLLM). O <strong>CostManager</strong> monitora os custos em USD e tokens por chamada em tempo real, travando execuções caso o teto configurado no <code>.env</code> seja atingido.</p>
+          </div>
+        </div>
+
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">04</span>
+            <h3>Como funciona o omnichannel corporativo no WhatsApp e Telegram?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>O KONIG inclui conectores nativos de produção. No <strong>WhatsApp</strong>, ele conecta gateways de mensagens com sessões isoladas por usuário, recuperação de contexto e handoff determinístico para humanos. No <strong>Telegram</strong>, organiza supergrupos com tópicos dedicados onde operadores humanos comandam squads inteiros por texto ou áudio transcrito.</p>
+          </div>
+        </div>
+
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">05</span>
+            <h3>Quais IDEs e ambientes de desenvolvimento são suportados?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>O KONIG possui adaptadores de sincronização para <strong>Google Antigravity</strong>, <strong>Cursor</strong>, <strong>Claude Code</strong>, <strong>OpenAI Codex</strong> e <strong>VS Code</strong>. Toda a inteligência, regras de negócio e memória ficam unificadas nos diretórios do projeto, permitindo que diferentes desenvolvedores e IAs operem sobre a mesma fonte de verdade.</p>
+          </div>
+        </div>
+
+        <div class="faq-card spotlight-card">
+          <div class="faq-question">
+            <span class="faq-badge">06</span>
+            <h3>Como posso testar no meu computador agora mesmo?</h3>
+          </div>
+          <div class="faq-answer">
+            <p>Basta ter Python 3.10+ instalado. Com o gerenciador <code>uv</code>, a inicialização leva menos de 5 segundos: execute <code>uv pip install konig-framework; konig run .agents</code> para rodar o squad autônomo de engenharia. O projeto é de código aberto sob licença MIT.</p>
+          </div>
         </div>
       </div>
     </div>

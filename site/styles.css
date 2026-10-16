@@ -2279,11 +2279,90 @@ body.theme-dark .typing-indicator {
 }
 
 /* ==============================================================================
+   FAQ & OBJEÇÕES COMERCIAIS
+   ============================================================================== */
+.faq-section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 36px;
+}
+
+.faq-card {
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.faq-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.faq-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.faq-question h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-title);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.faq-answer p {
+  font-size: 14px;
+  color: var(--text-subtle);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.faq-answer strong {
+  color: var(--text-title);
+}
+
+.faq-answer code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--bg-subtle);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #38BDF8;
+}
+
+/* ==============================================================================
    RESPONSIVIDADE HIPER-APURADA MOBILE-FIRST (Regra do Negócio KONIG)
    ============================================================================== */
 @media (max-width: 992px) {
   .hero-headline { font-size: 38px; line-height: 1.15; }
   .hyper-grid { grid-template-columns: 1fr; }
+  .faq-grid { grid-template-columns: 1fr; }
   .wa-interactive-layout { grid-template-columns: 1fr; }
   .tg-hub-layout { grid-template-columns: 1fr; }
   .bento-grid { grid-template-columns: 1fr; }
@@ -2307,5 +2386,6 @@ body.theme-dark .typing-indicator {
   .cli-line { flex-direction: column; align-items: stretch; gap: 8px; }
   .btn-copy-cli { width: 100%; justify-content: center; }
   .hero-button-row { flex-direction: column; width: 100%; }
-  .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  .btn-primary, .btn-secondary, .btn-outline { width: 100%; justify-content: center; }
+  .faq-card { padding: 18px 14px; }
 }
