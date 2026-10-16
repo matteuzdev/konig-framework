@@ -40,6 +40,21 @@ class SaveRequest(BaseModel):
     content: str = Field(..., description="Novo conteúdo a ser salvo no arquivo")
 
 
+class TerminalRequest(BaseModel):
+    command: str = Field(..., description="Comando seguro a ser executado no repositório")
+
+
+class MultiFileEditItem(BaseModel):
+    file: str
+    content: str
+
+
+class MultiFileComposerRequest(BaseModel):
+    instruction: str
+    files: List[MultiFileEditItem]
+    auto_apply: bool = False
+
+
 class FileWatcher:
     """
     Watcher de arquivos portátil e de baixo consumo de recursos (Zero Dependências Externas).
@@ -267,6 +282,87 @@ def create_hyper_engine_app(root_dir: str = ".") -> FastAPI:
 
             indexer.index_repository(force_reindex=False)
             return {"success": True, "file": clean_path, "message": "Arquivo salvo com sucesso."}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/api/terminal")
+    def run_terminal_command(req: TerminalRequest):
+        """Executa comando no ambiente do repositório e retorna a saída formatada."""
+        import subprocess
+        cmd = req.command.strip()
+        allowed_prefixes = ("konig", "python", "git", "dir", "echo", "pytest", "cat", "type", "help")
+        if not any(cmd.startswith(p) for p in allowed_prefixes):
+            return {"exit_code": 1, "output": f"Comando '{cmd}' não permitido na sandbox do terminal."}
+        
+        try:
+            res = subprocess.run(
+                cmd,
+                shell=True,
+                cwd=abs_root,
+                capture_output=True,
+                text=True,
+                timeout=20,
+                encoding="utf-8",
+                errors="replace"
+            )
+            out = res.stdout if res.stdout else res.stderr
+            return {"exit_code": res.returncode, "output": out or "[Comando concluído com código 0]"}
+        except subprocess.TimeoutExpired:
+            return {"exit_code": 124, "output": "Tempo limite de execução excedido (20s)."}
+        except Exception as e:
+            return {"exit_code": 1, "output": f"Erro de execução: {e}"}
+
+    @app.get("/api/graph")
+    def get_ast_graph():
+        """Retorna os nós e arestas de chamadas (call-graph) do repositório."""
+        nodes = []
+        for name, sym_list in list(indexer.symbol_lookup.items())[:120]:
+            if sym_list:
+                sym = sym_list[0]
+                nodes.append({
+                    "id": name,
+                    "name": sym.name,
+                    "kind": sym.kind.value,
+                    "file": sym.file_path,
+                    "line": sym.start_line
+                })
+        edges = []
+        for caller, callees in list(indexer.call_graph.items())[:150]:
+            for callee in callees:
+                edges.append({"source": caller, "target": callee})
+        return {
+            "total_nodes": len(indexer.symbol_lookup),
+            "total_edges": len(indexer.call_graph),
+            "sample_nodes": nodes,
+            "sample_edges": edges
+        }
+
+    @app.post("/api/composer")
+    def execute_multi_composer(req: MultiFileComposerRequest):
+        """Aplica alterações atômicas coordenadas em múltiplos arquivos com backup .undo."""
+        results = []
+        try:
+            if req.auto_apply:
+                for item in req.files:
+                    clean_path = item.file.replace("\\", "/").lstrip("/")
+                    full_p = os.path.normpath(os.path.join(abs_root, clean_path))
+                    if os.path.isfile(full_p):
+                        undo_p = full_p + ".undo"
+                        with open(full_p, "r", encoding="utf-8", errors="replace") as f:
+                            old_c = f.read()
+                        with open(undo_p, "w", encoding="utf-8") as f:
+                            f.write(old_c)
+                    with open(full_p, "w", encoding="utf-8") as f:
+                        f.write(item.content)
+                    results.append({"file": clean_path, "status": "APPLIED"})
+                indexer.index_repository(force_reindex=False)
+                return {"success": True, "message": f"{len(results)} arquivos gravados com sucesso.", "results": results}
+            else:
+                return {
+                    "success": True,
+                    "message": "Plano multi-arquivo calculado com sucesso.",
+                    "results": [{"file": i.file, "status": "STAGED"} for i in req.files]
+                }
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 

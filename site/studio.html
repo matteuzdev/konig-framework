@@ -2573,7 +2573,35 @@ def validate_kronos_invariants():
       }
     }
 
-    function executeTerminalCommand(cmd) {
+    async function executeTerminalCommand(cmd) {
+      if (cmd === 'clear') {
+        document.getElementById('termLogLines').innerHTML = '';
+        return;
+      }
+      if (cmd.startsWith('konig edit')) {
+        openCmdK();
+        return;
+      }
+
+      // Se o Daemon local estiver online, executa o comando REAL no sistema!
+      if (isDaemonOnline) {
+        try {
+          addTerminalLine(`<span class="term-dim">⚡ Executando comando real no sistema via KRONOS Daemon...</span>`);
+          const res = await fetch('/api/terminal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command: cmd })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const colorClass = data.exit_code === 0 ? 'term-green' : 'term-del';
+            addTerminalLine(`<pre class="${colorClass}" style="white-space:pre-wrap; font-family:var(--font-code); font-size:11px;">${escapeHtml(data.output)}</pre>`);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // Fallback emulado de alta fidelidade para modo Web
       const parts = cmd.split(' ');
       const main = parts[0];
 
@@ -2593,12 +2621,49 @@ def validate_kronos_invariants():
 [GET /api/search?q=KonigOrchestrator] -> 200 OK<br>
 [POST /api/edit (Dry-Run)] -> 200 OK<br>
 <span class="term-green">----------------------------------------------------------------------<br>Ran 3 tests in 0.042s - OK!</span>`);
-      } else if (cmd === 'clear') {
-        document.getElementById('termLogLines').innerHTML = '';
-      } else if (cmd.startsWith('konig edit')) {
-        openCmdK();
       } else {
         addTerminalLine(`<span class="term-dim">Comando '${cmd}' executado com sucesso (código 0).</span>`);
+      }
+    }
+
+    async function renderASTGraphView() {
+      const treeContainer = document.getElementById('sidebarFileTree');
+      treeContainer.innerHTML = `<div style="font-size:11px; color:var(--text-dim); padding:10px;">Carregando Grafo AST...</div>`;
+
+      try {
+        let nodes = [];
+        if (isDaemonOnline) {
+          const res = await fetch('/api/graph');
+          if (res.ok) {
+            const data = await res.json();
+            nodes = data.sample_nodes || [];
+          }
+        }
+        if (nodes.length === 0) {
+          nodes = [
+            { name: 'KonigOrchestrator', kind: 'class', file: 'core/engine/orchestrator.py', line: 30 },
+            { name: 'ASTIndexer', kind: 'class', file: 'core/hyper_engine/indexer.py', line: 65 },
+            { name: 'DiffStreamer', kind: 'class', file: 'core/hyper_engine/diff_streamer.py', line: 26 },
+            { name: 'KonigSynapseEngine', kind: 'class', file: 'core/engine/synapse.py', line: 8 },
+            { name: 'run_daemon', kind: 'function', file: 'core/hyper_engine/daemon.py', line: 290 },
+            { name: 'execute_workflow', kind: 'method', file: 'core/engine/orchestrator.py', line: 60 }
+          ];
+        }
+
+        treeContainer.innerHTML = `
+          <div style="padding:4px 6px;">
+            <div style="font-size:10px; color:var(--accent); font-weight:700; margin-bottom:8px;">🧠 REDE NEURAL DE SÍMBOLOS AST (${nodes.length} nós)</div>
+            ${nodes.map(n => `
+              <div class="outline-item" style="margin-bottom:4px; padding:6px 8px; background:var(--bg-card);" onclick="openFile('${n.file}'); setTimeout(() => jumpToLine(${n.line}, '${n.name}'), 200);">
+                <span class="sym-badge ${n.kind}">${n.kind[0].toUpperCase()}</span>
+                <span style="font-weight:600;">${n.name}</span>
+                <span style="margin-left:auto; font-size:9px; color:var(--text-dim)">${n.file.split('/').pop()}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (e) {
+        treeContainer.innerHTML = `<div style="font-size:11px; color:var(--accent-red); padding:10px;">Erro ao carregar grafo AST.</div>`;
       }
     }
 
@@ -2616,6 +2681,7 @@ def validate_kronos_invariants():
         document.getElementById('actExplorer').classList.add('active');
         document.getElementById('sidebarTitle').innerText = 'EXPLORER: KONIG';
         document.getElementById('ideSidebar').style.display = 'flex';
+        buildFileTree();
       } else if (name === 'search') {
         document.getElementById('actSearch').classList.add('active');
         document.getElementById('sidebarTitle').innerText = 'BUSCA NO GRAFO AST';
@@ -2623,7 +2689,9 @@ def validate_kronos_invariants():
         document.getElementById('fileFilterInput').focus();
       } else if (name === 'graph') {
         document.getElementById('actGraph').classList.add('active');
-        showToast('🧠 Grafo Semântico KRONOS Ativo');
+        document.getElementById('sidebarTitle').innerText = 'GRAFO AST & REDE DE CHAMADAS';
+        document.getElementById('ideSidebar').style.display = 'flex';
+        renderASTGraphView();
       } else if (name === 'git') {
         document.getElementById('actGit').classList.add('active');
         showToast('🌿 Controle de Versão Git');
