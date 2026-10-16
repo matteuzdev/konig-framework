@@ -48,11 +48,14 @@ class KonigLLMRouter:
         agent_signature: str = "[System - Engine]",
         temperature: float = 0.7,
         max_retries_per_model: int = 2,
-        allow_simulation: bool = False
+        allow_simulation: bool = False,
+        max_output_tokens: int = 1024
     ) -> LLMResponse:
         """
         Executa a geração através de uma cadeia de modelos com resiliência total.
         """
+        if max_output_tokens < 1:
+            raise ValueError("max_output_tokens must be positive")
         if self.cost_manager.is_budget_exceeded():
             raise RuntimeError("KONIG_BUDGET_EXCEEDED")
         model_chain = [model] + (fallback_models if fallback_models is not None else ["gpt-4o-mini", "gemini-2.5-flash"])
@@ -67,13 +70,13 @@ class KonigLLMRouter:
             for attempt in range(max_retries_per_model):
                 if self.cost_manager.is_budget_exceeded():
                     raise RuntimeError('KONIG_BUDGET_EXCEEDED')
-                predicted = self.cost_manager.calculate_cost(current_model, self.synapse_engine.estimate_tokens(prompt + system_prompt), 4096)
+                predicted = self.cost_manager.calculate_cost(current_model, self.synapse_engine.estimate_tokens(prompt + system_prompt), max_output_tokens)
                 if predicted > self.cost_manager.get_remaining_budget():
                     raise RuntimeError('KONIG_BUDGET_PREFLIGHT: conservative estimate exceeds remaining budget')
                 try:
                     # Se houver chaves de API configuradas no ambiente, podemos chamar via LiteLLM ou SDK:
                     content, in_tokens, out_tokens = self._call_provider(
-                        current_model, prompt, system_prompt, temperature
+                        current_model, prompt, system_prompt, temperature, max_output_tokens
                     )
 
                     elapsed = (time.perf_counter() - start_time) * 1000
@@ -112,20 +115,19 @@ class KonigLLMRouter:
         in_t = self.synapse_engine.estimate_tokens(prompt + system_prompt)
         out_t = self.synapse_engine.estimate_tokens(fallback_text)
 
-        rec = self.cost_manager.record_usage(agent_signature, model, in_t, out_t)
         return LLMResponse(
             content=fallback_text,
             model_used=f"{model} (Simulated Fallback)",
             prompt_tokens=in_t,
             completion_tokens=out_t,
-            cost_usd=rec.cost_usd,
+            cost_usd=0.0,
             fallback_occurred=True,
             simulated=True,
             execution_time_ms=elapsed
         )
 
     def _call_provider(
-        self, model: str, prompt: str, system_prompt: str, temperature: float
+        self, model: str, prompt: str, system_prompt: str, temperature: float, max_output_tokens: int = 1024
     ) -> tuple[str, int, int]:
         """
         Executa chamada real para o provedor se LiteLLM ou API Keys estiverem disponíveis.
@@ -147,7 +149,8 @@ class KonigLLMRouter:
                 response = litellm.completion(
                     model=model,
                     messages=messages,
-                    temperature=temperature
+                    temperature=temperature,
+                    max_tokens=max_output_tokens
                 )
                 content = response.choices[0].message.content or ""
                 in_tokens = response.usage.prompt_tokens
