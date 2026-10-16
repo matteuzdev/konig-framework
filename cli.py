@@ -170,33 +170,15 @@ def cmd_telegram(args: argparse.Namespace) -> None:
 
 
 def cmd_benchmark(args: argparse.Namespace) -> None:
-    """Exibe a matriz de maturidade técnica e conformidade industrial do KONIG."""
-    print("""
-====================================================================================================
-🦁 KONIG AGENTIC FRAMEWORK — MATRIZ DE MATURIDADE INDUSTRIAL & ARQUITETURA 2.0
-====================================================================================================
-Pilar de Engenharia KONIG        | Status Operacional  | Módulo / Mecanismo de Implementação
----------------------------------|---------------------|--------------------------------------------
-Isolamento Dev (.agents)         | ✅ HOMOLOGADO       | .agents/ (Time Técnico Universal AI)
-Squads de Negócio Desacoplados   | ✅ HOMOLOGADO       | squads/ (Marketing, Sales, Strategy)
-DAG Waves Paralelas Topológicas  | ✅ HOMOLOGADO       | Kahn Algorithm em core/primitives/workflow
-Markdown Quality Gates (SOPs)    | ✅ HOMOLOGADO       | core/engine/squad_loader (Checklists .md)
-AST Security Guardian no Sandbox | ✅ HOMOLOGADO       | core/runtime/sandbox (Análise Estática AST)
-Sandbox Runtime Isolado          | ✅ HOMOLOGADO       | core/runtime/sandbox (Subprocesso Seguro)
-SYNAPSE Context Brackets (4 Zonas| ✅ HOMOLOGADO       | core/engine/synapse (Green/Yellow/Orange/Red)
-Compressão Semântica Preservativa| ✅ HOMOLOGADO       | core/engine/synapse (Preserva Código e RFs)
-LLM Router com Fallback Chain    | ✅ HOMOLOGADO       | core/llm/router (Auto-failover multi-provedor)
-Auditor Financeiro em USD/Tokens | ✅ HOMOLOGADO       | core/memory/cost_manager (Rastreio em Realtime)
-Telegram Forum Topics Router     | ✅ HOMOLOGADO       | channels/telegram (Single-Bot Multi-Agent)
-WhatsApp Real-time Bridge        | ✅ HOMOLOGADO       | channels/whatsapp (Notificações de Handoff)
-Adaptadores Nativos Multi-IA     | ✅ HOMOLOGADO       | .cursor, .claude, .antigravity, .codex
-UI/UX Pro-Max Anti-Generic Gate  | ✅ HOMOLOGADO       | WCAG AAA, Inter/Outfit, HSL Curado
-Staff QA com Homologação Real    | ✅ HOMOLOGADO       | Asserções de teste executadas no Sandbox
-====================================================================================================
-🏆 VEREDITO: O KONIG Framework consolida governança determinística de ponta a ponta,
-eliminando dependências externas frágeis e garantindo previsibilidade de entrega enterprise.
-====================================================================================================
-""")
+    """Run real regression tests instead of printing canned certification."""
+    import subprocess
+    print("COLISSEUM: executing real local regression tests; no automatic production certification.")
+    command = [sys.executable, "-m", "pytest", "-q", "tests"]
+    result = subprocess.run(command, check=False)
+    if result.returncode != 0:
+        print("COLISSEUM FAIL: test suite did not pass (or pytest unavailable).")
+        sys.exit(result.returncode or 1)
+    print("COLISSEUM: available tests passed. E2E, T4/T5 and production status remain NOT ASSESSED.")
 
 
 def cmd_crm(args: argparse.Namespace) -> None:
