@@ -248,7 +248,8 @@ def cmd_daemon(args: argparse.Namespace) -> None:
     from core.hyper_engine.daemon import run_daemon
     port = args.port or 7331
     host = args.host or "127.0.0.1"
-    run_daemon(root_dir=".", host=host, port=port)
+    open_browser = getattr(args, "open", False)
+    run_daemon(root_dir=".", host=host, port=port, open_browser=open_browser)
 
 
 def cmd_undo(args: argparse.Namespace) -> None:
@@ -274,6 +275,7 @@ def main():
     p_daemon = subparsers.add_parser("daemon", help="Inicia o KONIG Hyper-Engine Daemon (servidor local de código com file watcher)")
     p_daemon.add_argument("--port", "-p", type=int, default=7331, help="Porta do servidor RPC local (padrão: 7331)")
     p_daemon.add_argument("--host", default="127.0.0.1", help="Host de binding (padrão: 127.0.0.1)")
+    p_daemon.add_argument("--open", "-o", action="store_true", help="Abre o Hyper-Studio automaticamente no navegador padrão")
     p_daemon.set_defaults(func=cmd_daemon)
 
     # edit (Hyper-Engine Fast Edit)

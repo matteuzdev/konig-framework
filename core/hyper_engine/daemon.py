@@ -14,6 +14,7 @@ import time
 from typing import Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from core.hyper_engine.indexer import ASTIndexer, IndexStats
@@ -111,6 +112,16 @@ def create_hyper_engine_app(root_dir: str = ".") -> FastAPI:
     def on_shutdown():
         watcher.stop()
 
+    @app.get("/", response_class=HTMLResponse)
+    @app.get("/workbench", response_class=HTMLResponse)
+    def get_workbench():
+        """Retorna a interface visual do KONIG Hyper-Studio."""
+        workbench_file = os.path.join(os.path.dirname(__file__), "workbench.html")
+        if os.path.exists(workbench_file):
+            with open(workbench_file, "r", encoding="utf-8") as f:
+                return f.read()
+        return "<h1>KONIG Hyper-Studio</h1>"
+
     @app.get("/api/status")
     def get_status():
         """Retorna telemetria em tempo real do repositório indexado."""
@@ -194,16 +205,20 @@ def create_hyper_engine_app(root_dir: str = ".") -> FastAPI:
     return app
 
 
-def run_daemon(root_dir: str = ".", host: str = "127.0.0.1", port: int = 7331) -> None:
-    """Inicia o Daemon local via Uvicorn."""
+def run_daemon(root_dir: str = ".", host: str = "127.0.0.1", port: int = 7331, open_browser: bool = False) -> None:
+    """Inicia o Daemon local via Uvicorn e abre o Hyper-Studio no navegador."""
     import uvicorn
+    import webbrowser
 
+    url = f"http://{host}:{port}/"
     print("\n" + "=" * 70)
     print("⚡ KONIG HYPER-ENGINE DAEMON — Servidor Local de Inteligência de Código")
     print("=" * 70)
     print(f"📁 Diretório Raiz: {os.path.abspath(root_dir)}")
-    print(f"📡 API Local Ativa: http://{host}:{port}")
+    print(f"🌐 Hyper-Studio URL: {url}")
+    print(f"📡 API RPC Local: http://{host}:{port}/api/status")
     print(f"🔍 Endpoints RPC Disponíveis:")
+    print(f"   • GET  /             -> Interface Web do Hyper-Studio (Workbench)")
     print(f"   • GET  /api/status   -> Telemetria e saúde do repositório")
     print(f"   • GET  /api/search   -> Busca ranqueada no grafo de símbolos")
     print(f"   • GET  /api/outline  -> Estrutura e AST de arquivos")
@@ -211,6 +226,12 @@ def run_daemon(root_dir: str = ".", host: str = "127.0.0.1", port: int = 7331) -
     print(f"   • POST /api/edit     -> Edição inline com diff streaming")
     print(f"   • POST /api/undo     -> Rollback atômico instantâneo")
     print(f"💡 Pressione CTRL+C no terminal para encerrar o daemon.\n")
+
+    if open_browser:
+        def _open():
+            time.sleep(1.0)
+            webbrowser.open(url)
+        threading.Thread(target=_open, daemon=True).start()
 
     app = create_hyper_engine_app(root_dir)
     uvicorn.run(app, host=host, port=port, log_level="info")
