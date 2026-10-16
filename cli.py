@@ -211,12 +211,84 @@ def cmd_crm(args: argparse.Namespace) -> None:
     uvicorn.run("crm.server:app", host="127.0.0.1", port=port, reload=False)
 
 
+def cmd_edit(args: argparse.Namespace) -> None:
+    """Executa edição cirúrgica inline com diff streaming via KONIG Hyper-Engine."""
+    from core.hyper_engine.edit_engine import HyperEditEngine
+
+    file_path = args.file
+    instruction = args.instruction
+    symbol_name = args.symbol
+    dry_run = args.dry_run
+    auto_apply = args.yes
+
+    print(f"\n⚡ KONIG HYPER-ENGINE — Iniciando Edição Cirúrgica Inline...")
+    print(f"📄 Arquivo: '{file_path}'")
+    print(f"🎯 Instrução: '{instruction}'")
+    if symbol_name:
+        print(f"🔍 Símbolo Alvo: [{symbol_name}]")
+
+    engine = HyperEditEngine(root_dir=".")
+    try:
+        diff_res, status_msg = engine.edit(
+            file_path=file_path,
+            instruction=instruction,
+            symbol_name=symbol_name,
+            dry_run=dry_run,
+            auto_apply=auto_apply
+        )
+        print("\n" + engine.diff_streamer.format_terminal_diff(diff_res))
+        print(f"\n✨ {status_msg}")
+    except Exception as e:
+        print(f"\n❌ Erro durante a edição: {e}")
+        sys.exit(1)
+
+
+def cmd_daemon(args: argparse.Namespace) -> None:
+    """Inicia o KONIG Hyper-Engine Local Daemon com watcher em tempo real e API RPC."""
+    from core.hyper_engine.daemon import run_daemon
+    port = args.port or 7331
+    host = args.host or "127.0.0.1"
+    run_daemon(root_dir=".", host=host, port=port)
+
+
+def cmd_undo(args: argparse.Namespace) -> None:
+    """Restaura um arquivo para o estado anterior usando o backup .undo do Hyper-Engine."""
+    from core.hyper_engine.edit_engine import HyperEditEngine
+    file_path = args.file
+    engine = HyperEditEngine(root_dir=".")
+    if engine.undo(file_path):
+        print(f"\n⏪ [ROLLBACK CONCLUÍDO] Arquivo '{file_path}' restaurado com sucesso a partir de .undo.")
+    else:
+        print(f"\n❌ [ERRO] Nenhum backup .undo encontrado para '{file_path}'.")
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="konig",
         description="KONIG Agentic Framework CLI — Motor industrial de orquestração de IA"
     )
     subparsers = parser.add_subparsers(dest="command", help="Comandos disponíveis")
+
+    # daemon (Hyper-Engine Local Daemon)
+    p_daemon = subparsers.add_parser("daemon", help="Inicia o KONIG Hyper-Engine Daemon (servidor local de código com file watcher)")
+    p_daemon.add_argument("--port", "-p", type=int, default=7331, help="Porta do servidor RPC local (padrão: 7331)")
+    p_daemon.add_argument("--host", default="127.0.0.1", help="Host de binding (padrão: 127.0.0.1)")
+    p_daemon.set_defaults(func=cmd_daemon)
+
+    # edit (Hyper-Engine Fast Edit)
+    p_edit = subparsers.add_parser("edit", help="Executa edição cirúrgica inline em um arquivo (padrão Cmd+K / Fast Edit)")
+    p_edit.add_argument("file", help="Caminho do arquivo a ser editado")
+    p_edit.add_argument("instruction", help="Instrução da alteração a ser aplicada")
+    p_edit.add_argument("--symbol", "-s", default=None, help="Nome do símbolo específico para focar o contexto")
+    p_edit.add_argument("--dry-run", "-d", action="store_true", help="Calcula e exibe o diff sem alterar o disco")
+    p_edit.add_argument("--yes", "-y", action="store_true", help="Aplica a alteração automaticamente sem confirmação")
+    p_edit.set_defaults(func=cmd_edit)
+
+    # undo (Hyper-Engine Rollback)
+    p_undo = subparsers.add_parser("undo", help="Reverte a última edição feita pelo Hyper-Engine usando backup .undo")
+    p_undo.add_argument("file", help="Caminho do arquivo a ser revertido")
+    p_undo.set_defaults(func=cmd_undo)
 
     # crm
     p_crm = subparsers.add_parser("crm", help="Inicia o painel visual do KONIG Sales, Hosting & MRR CRM")
@@ -262,3 +334,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

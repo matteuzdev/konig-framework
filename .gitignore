@@ -32,6 +32,7 @@ htmlcov/
 *.db
 *.sqlite
 *.sqlite3
+.konig/
 
 # Private Clients & Local Leads (Confidential)
 clientes/
