@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KONIG Interactive Sales</title>
+<style>
+:root{font-family:system-ui,Arial;background:#f4f6f5;color:#18241f}*{box-sizing:border-box}body{margin:0}main{max-width:1060px;margin:auto;padding:28px 16px}header{margin-bottom:26px}h1{font-size:clamp(28px,4vw,44px);margin:6px 0}p{color:#52645b}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}.card{background:white;border:1px solid #dae3dd;border-radius:18px;padding:22px;box-shadow:0 6px 25px #16382408}.card h2{margin-top:0}label{display:block;margin:15px 0 5px;font-weight:600;font-size:14px}input,select{width:100%;padding:10px;border:1px solid #aebfb4;border-radius:8px;font:inherit}input[type=range]{padding:0;accent-color:#069b63}.metric{font-size:26px;font-weight:800;margin:12px 0;color:#087c53}.sub{font-size:13px;color:#5e6c65}button{background:#0ce982;color:#0b2117;border:0;border-radius:10px;padding:12px 15px;font-weight:700;cursor:pointer;margin-top:14px;width:100%}.preview{height:125px;border-radius:12px;border:1px solid #aaa;background:linear-gradient(130deg,transparent 30%,#9997 32%,transparent 35%,transparent 60%,#9996 63%,transparent 65%),var(--stone,#e7e4dc)}.footer{margin-top:24px;font-size:12px}</style></head><body><main>
+<header><small>KONIG / INTERACTIVE SALES</small><h1>Venda mostrando o valor.</h1><p>Três experiências comerciais interativas. Valores fictícios para demonstração.</p></header>
+<div class="grid">
+<section class="card" id="stone"><h2>Configurador de bancada</h2><div class="preview" id="stonePreview"></div>
+<label for="material">Material</label><select id="material"><option value="650" data-color="#e7e4dc">Branco Carrara</option><option value="490" data-color="#282b30">Preto São Gabriel</option><option value="430" data-color="#405b4c">Verde Ubatuba</option></select>
+<label for="length">Comprimento (m)</label><input id="length" type="number" min=".5" max="20" step=".1" value="3">
+<label for="depth">Profundidade (m)</label><input id="depth" type="number" min=".3" max="3" step=".05" value=".6">
+<label for="finish">Acabamento</label><select id="finish"><option value="1">Polido</option><option value="1.15">Escovado (+15%)</option></select>
+<label><input id="sink" type="checkbox" checked style="width:auto"> Recorte para cuba (+R$ 180)</label>
+<div class="metric" id="stoneOut" aria-live="polite"></div><div class="sub">Estimativa sem instalação, transporte ou perdas de corte.</div><button id="brief">Copiar briefing</button></section>
+<section class="card" id="roi"><h2>ROI de equipamento</h2>
+<label for="capacity">Peças por hora</label><input id="capacity" type="number" min="1" value="1200">
+<label for="hours">Horas por dia</label><input id="hours" type="number" min="1" max="24" value="8">
+<label for="days">Dias por mês</label><input id="days" type="number" min="1" max="31" value="22">
+<label for="gain">Ganho de produtividade (%)</label><input id="gain" type="number" min="0" max="500" value="25">
+<label for="margin">Margem por peça adicional (R$)</label><input id="margin" type="number" min="0" step=".1" value=".7">
+<label for="investment">Investimento (R$)</label><input id="investment" type="number" min="0" value="180000">
+<div class="metric" id="roiOut" aria-live="polite"></div><div class="sub" id="roiDetail"></div></section>
+<section class="card" id="mineral"><h2>Economia de matéria-prima</h2>
+<label for="price">Preço por tonelada (R$)</label><input id="price" type="number" min="0" value="420">
+<label for="freight">Frete por tonelada (R$)</label><input id="freight" type="number" min="0" value="110">
+<label for="yield">Rendimento útil (%)</label><input id="yield" type="number" min="1" max="100" value="88">
+<label for="tons">Volume comprado (t/mês)</label><input id="tons" type="number" min="1" value="100">
+<label for="reference">Referência por tonelada útil (R$)</label><input id="reference" type="number" min="0" value="620">
+<div class="metric" id="mineralOut" aria-live="polite"></div><div class="sub" id="mineralDetail"></div></section>
+</div><p class="footer">Protótipo demonstrativo. Verifique especificações técnicas, capacidade de venda, tributos, logística e preços antes de apresentar proposta vinculante.</p></main>
+<script>
+const $=id=>document.getElementById(id),n=id=>Number($(id).value),money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+function update(){
+ const option=$('material').selectedOptions[0];$('stonePreview').style.setProperty('--stone',option.dataset.color);
+ const area=n('length')*n('depth');$('stoneOut').textContent=area>0?money(area*n('material')*n('finish')+($('sink').checked?180:0)):'Verifique as medidas';
+ const extra=n('capacity')*n('hours')*n('days')*n('gain')/100, contribution=extra*n('margin');
+ $('roiOut').textContent=money(contribution)+'/mês';$('roiDetail').textContent=Math.round(extra).toLocaleString('pt-BR')+' peças adicionais/mês • Payback: '+(contribution>0?(n('investment')/contribution).toFixed(1)+' meses':'indisponível');
+ const effective=(n('price')+n('freight'))/(n('yield')/100), difference=(n('reference')-effective)*n('tons')*n('yield')/100;
+ $('mineralOut').textContent=n('yield')>0?money(effective)+'/t útil':'Rendimento inválido';$('mineralDetail').textContent='Diferença mensal versus referência: '+money(difference);
+}
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',update));
+$('brief').addEventListener('click',async()=>{const msg='Bancada: '+$('material').selectedOptions[0].text+'; '+n('length')+' m × '+n('depth')+' m; '+$('finish').selectedOptions[0].text+'; recorte: '+($('sink').checked?'sim':'não')+'; estimativa: '+$('stoneOut').textContent+'. Sujeito a orçamento técnico.';try{await navigator.clipboard.writeText(msg);$('brief').textContent='Briefing copiado';}catch{window.prompt('Copie o briefing:',msg)}});
+update();
+</script></body></html>
