@@ -1,0 +1,160 @@
+# KONIG ↔ CONSELHO — Mapa de Injeção Consultiva
+# Variáveis de contexto (preenchidas no momento do Coliseu):
+#   {{ICP}} — Perfil ideal de cliente (quem, dor, budget, autoridade)
+#   {{SEGMENTO}} — Vertical de mercado
+#   {{CANAL}} — Canal de aquisição primário
+#   {{MECANISMO_UNICO}} — Unique Mechanism (Thiel/Jobs)
+#   {{OFERTA_GRAND_SLAM}} — Oferta completa (Hormozi)
+#   {{RUNWAY_DIAS}} — Dias de caixa restantes
+#   {{MRR_TARGET}} — Meta de MRR no horizonte
+#   {{HUNTERX_CAPACITY}} — Capacidade atual do HunterX
+
+council:
+  - id: hill
+    name: "Napoleon Hill — Arquiteto do Desejo"
+    seat: "Definite Major Purpose | Mastermind | Persistence | 6 Passos Práticos"
+    signature: "[Hill - Arquiteto do Desejo]"
+    supervises:
+      - agent_id: ceo_advisor
+        agent_name: Arthur
+        injection_section: "HILL INJECTION — CEO ADVISOR"
+        source_file: "core/council/council_hill.md"
+      - agent_id: cfo
+        agent_name: Beatriz
+        injection_section: "HILL INJECTION — CFO"
+        source_file: "core/council/council_hill.md"
+
+  - id: hormozi
+    name: "Alex Hormozi — Engenheiro de Valor"
+    seat: "Value Equation | Grand Slam Offer | Guarantees | Virtuous Cycle of Price"
+    signature: "[Hormozi - Engenheiro de Valor]"
+    supervises:
+      - agent_id: closer
+        agent_name: Sophia
+        injection_section: "HORMOZI INJECTION — CLOSER"
+        source_file: "core/council/council_hormozi.md"
+      - agent_id: sdr
+        agent_name: Lucas
+        injection_section: "HORMOZI INJECTION — SDR"
+        source_file: "core/council/council_hormozi.md"
+      - agent_id: jay_abraham
+        agent_name: Jay
+        injection_section: "HORMOZI INJECTION — LTV"
+        source_file: "core/council/council_hormozi.md"
+      - agent_id: cs_manager
+        agent_name: Bernardo
+        injection_section: "HORMOZI INJECTION — CS"
+        source_file: "core/council/council_hormozi.md"
+
+  - id: jobs
+    name: "Steve Jobs — Visionário Implacável"
+    seat: "First Principles | Reality Distortion Field | Simplicity | Ecosystem Lock-in"
+    signature: "[Jobs - Visionário Implacável]"
+    supervises:
+      - agent_id: ui_ux_designer
+        agent_name: Carol
+        injection_section: "JOBS INJECTION — DESIGNER"
+        source_file: "core/council/council_jobs.md"
+      - agent_id: engineer
+        agent_name: Dan
+        injection_section: "JOBS INJECTION — ENGINEER"
+        source_file: "core/council/council_jobs.md"
+      - agent_id: pm
+        agent_name: Alice
+        injection_section: "JOBS INJECTION — PM"
+        source_file: "core/council/council_jobs.md"
+
+  - id: munger
+    name: "Charlie Munger — Arquiteto Mental"
+    seat: "Latticework | Inversion | Circle of Competence | Lollapalooza Effect | Psychology of Misjudgment"
+    signature: "[Munger - Arquiteto Mental]"
+    supervises:
+      - agent_id: architect
+        agent_name: Bob
+        injection_section: "MUNGER INJECTION — ARCHITECT"
+        source_file: "core/council/council_munger.md"
+      - agent_id: qa_engineer
+        agent_name: Elena
+        injection_section: "MUNGER INJECTION — QA"
+        source_file: "core/council/council_munger.md"
+      - agent_id: cfo
+        agent_name: Beatriz
+        injection_section: "MUNGER INJECTION — CFO"
+        source_file: "core/council/council_munger.md"
+
+  - id: thiel
+    name: "Peter Thiel — Contrariano Monopolista"
+    seat: "Contrarian Question | Monopoly (0 to 1) | Secrets | Power Law | Definite Optimism"
+    signature: "[Thiel - Contrariano Monopolista]"
+    supervises:
+      - agent_id: ceo_advisor
+        agent_name: Arthur
+        injection_section: "THIEL INJECTION — CEO ADVISOR"
+        source_file: "core/council/council_thiel.md"
+      - agent_id: cmo
+        agent_name: Marcus
+        injection_section: "THIEL INJECTION — CMO"
+        source_file: "core/council/council_thiel.md"
+
+  - id: naval
+    name: "Naval Ravikant — Arquiteto de Alavancagem"
+    seat: "4 Tipos de Alavancagem | Juice Worth the Squeeze | Specific Knowledge | Accountability | Leverage Magnifies Judgment"
+    signature: "[Naval - Arquiteto de Alavancagem]"
+    supervises:
+      - agent_id: engineer
+        agent_name: Dan
+        injection_section: "NAVAL INJECTION — ENGINEER"
+        source_file: "core/council/council_naval.md"
+      - agent_id: onix
+        agent_name: ONIX
+        injection_section: "NAVAL INJECTION — META ORCHESTRATOR"
+        source_file: "core/council/council_naval.md"
+      - agent_id: jay_abraham
+        agent_name: Jay
+        injection_section: "NAVAL INJECTION — LTV"
+        source_file: "core/council/council_naval.md"
+
+  - id: bezos
+    name: "Jeff Bezos — Operador do Flywheel"
+    seat: "Flywheel | Day 1 | Customer Obsession | High-Velocity Decisions | Two-Pizza Teams | Operational Excellence"
+    signature: "[Bezos - Operador do Flywheel]"
+    supervises:
+      - agent_id: cmo
+        agent_name: Marcus
+        injection_section: "BEZOS INJECTION — CMO"
+        source_file: "core/council/council_bezos.md"
+      - agent_id: cs_manager
+        agent_name: Bernardo
+        injection_section: "BEZOS INJECTION — CS"
+        source_file: "core/council/council_bezos.md"
+      - agent_id: pm
+        agent_name: Alice
+        injection_section: "BEZOS INJECTION — PM"
+        source_file: "core/council/council_bezos.md"
+
+# Mapeamento reverso: Agente → Conselheiros
+agent_council_map:
+  ceo_advisor: [hill, thiel]
+  cfo: [hill, munger]
+  closer: [hormozi]
+  sdr: [hormozi]
+  jay_abraham: [hormozi, naval]
+  cs_manager: [hormozi, bezos]
+  ui_ux_designer: [jobs]
+  engineer: [jobs, naval]
+  pm: [jobs, bezos]
+  architect: [munger]
+  qa_engineer: [munger]
+  cmo: [thiel, bezos]
+  onix: [naval]
+
+# Protocolo de decisão
+coliseu_protocol: "core/council/coliseu_protocol.md"
+
+# Regras de aplicação
+injection_rules:
+  - "Injeção = referência consultiva apenas. O agente NÃO incorpora a persona do conselheiro."
+  - "Agente consulta a seção indicada no source_file quando acionado por ONIX via Coliseu."
+  - "Variáveis {{...}} são resolvidas em tempo de execução pelo ONIX (meta_orchestrator)."
+  - "Cada injeção contém: frameworks operacionais, template de análise, handoffs KONIG."
+  - "Nenhum agente tem autoridade para vetar veredito do Coliseu. Apenas executa tasks despachadas."
