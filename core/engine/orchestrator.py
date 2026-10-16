@@ -680,13 +680,28 @@ class KonigOrchestrator:
 
                         if gate:
                             result = gate.validate(output_text)
+                            # E2E gate: text alone cannot certify a code or QA delivery.
+                            if gate_name in ("code-quality-gate-checklist", "qa-gate-checklist", "code_quality_gate", "qa_gate"):
+                                if not sandbox_result or not sandbox_result.success:
+                                    result = GateResult(
+                                        gate_id=gate.id, gate_name=gate.name,
+                                        verdict=GateVerdict.REJECTED, score=0.0,
+                                        feedback="COLISSEUM_EVIDENCE_REQUIRED: successful executed tests are mandatory",
+                                        issues=["Missing successful sandbox execution evidence"],
+                                    )
                             if not result.passed:
                                 failed_gate_results.append(result)
                                 print(f"   ❌ Gate [{gate.name}] REPROVOU (Score: {result.score:.2f}): {result.feedback}")
                             else:
                                 print(f"   ✅ Gate [{gate.name}] APROVOU (Score: {result.score:.2f})")
                         else:
-                            print(f"   ⚠️ Gate [{gate_name}] não registrado. Prosseguindo com aviso.")
+                            failed_gate_results.append(GateResult(
+                                gate_id="missing", gate_name=gate_name,
+                                verdict=GateVerdict.REJECTED, score=0.0,
+                                feedback="Required gate unavailable; fail closed",
+                                issues=["Required quality gate missing"],
+                            ))
+                            print(f"   ❌ Gate [{gate_name}] indisponível: execução reprovada.")
 
                     if not failed_gate_results:
                         task.approve()
