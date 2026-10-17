@@ -134,6 +134,8 @@ def create_hyper_engine_app(root_dir: str = ".") -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     @app.get("/workbench", response_class=HTMLResponse)
+    @app.get("/workbench.html", response_class=HTMLResponse)
+    @app.get("/studio.html", response_class=HTMLResponse)
     def get_workbench():
         """Retorna a interface visual do KONIG Hyper-Studio."""
         workbench_file = os.path.join(os.path.dirname(__file__), "workbench.html")
