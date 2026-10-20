@@ -325,10 +325,10 @@ function resetDagSimulation() {
 // 4. WHATSAPP LIVE PLAYGROUND (STREAMING & TYPING INDICATOR)
 // ==============================================================================
 const waKnowledgeBase = {
-  status: "[TELEMETRIA] Todos os 5 agentes do squad de engenharia (.agents) estão operando normalmente. O pipeline da Wave 3 concluiu a refatoração dos contratos OpenAPI. Zero deadlocks ou timeouts registrados no cluster.",
-  falha: "[DIAGNÓSTICO AST] A asserção `test_sandbox_timeout` da Wave 4 gerou falha devido à latência de 15s na API externa mockada. O motor ONIX realizou rollback automático e recomenda isolar a resposta local no sandbox.",
-  metricas: "[MÉTRICAS DE EXECUÇÃO] Consumo nos últimos 7 dias: 412.000 tokens processados ($0.82 USD via Claude / DeepSeek). A poda do SYNAPSE economizou 3.2M de tokens redundantes (88.5% de redução de contexto).",
-  handoff: "[HANDOFF DETERMINÍSTICO] Pausando execução autônoma do agente. Snapshot de estado, variáveis de ambiente e stack trace completo foram roteados para o engenheiro responsável. Intervenção humana liberada."
+  status: "Olá! O KONIG funciona como uma equipe completa de vendas e atendimento no seu WhatsApp. Ele recebe o cliente em 2 segundos com muita simpatia, explica o que sua empresa faz, responde dúvidas sobre produtos ou serviços e já envia a proposta ou link de pagamento — 24 horas por dia, sem você precisar ficar preso no celular!",
+  falha: "Essa é a maior diferença do KONIG: ele tem uma trava de segurança blindada! A IA nunca inventa preços falsos, nunca promete prazos que você não pode cumprir e só fala o que foi aprovado na tabela da sua empresa. Se o cliente perguntar algo fora do padrão, o robô não mente: ele chama um atendente humano na hora!",
+  metricas: "Sim, com certeza! O KONIG se conecta direto à sua agenda (Google Agenda, sistemas médicos, CRM ou planilhas). O cliente escolhe o melhor dia e horário pelo próprio WhatsApp, o sistema reserva o horário na hora e ainda manda mensagens automáticas de confirmação para ninguém esquecer!",
+  handoff: "Se o cliente tiver um caso especial ou pedir para falar com uma pessoa, o KONIG aciona o seu time na hora no WhatsApp e já passa um resumo completo de tudo o que foi conversado. O cliente nem percebe a transição e você nunca perde uma venda!"
 };
 
 function sendWaPreset(text) {
@@ -534,7 +534,7 @@ const termOutputs = {
 <div class="c-line text-green">[OK] Squad de Marketing (squads/marketing): 3 Agentes | 3 Tasks | 1 Workflows</div>
 <div class="c-line text-green">[OK] Squad de Vendas (squads/sales): 3 Agentes | 3 Tasks | 1 Workflows</div>
 <div class="c-line text-green">[OK] Squad de Estratégia (squads/strategy): 2 Agentes | 2 Tasks | 1 Workflows</div>
-<div class="c-line text-muted">Adaptadores Multi-IDE ativos: .antigravity, .cursor, .claude, .codex, .vscode</div>`,
+<div class="c-line text-muted">Canais de Atendimento conectados: WhatsApp, Telegram, REST API, Webhooks</div>`,
 
   run: `<div class="c-line text-cyan">$ konig run .agents full_development_lifecycle</div>
 <div class="c-line text-white">[EXEC] KONIG CLI — Iniciando execução de Squad: [.agents]</div>
@@ -736,3 +736,16 @@ function updateCostCalculator(runs) {
   }
 }
 
+
+
+// ==============================================================================
+// 7. NAVEGAÇÃO MOBILE-FIRST (MENU HAMBURGUER ACESSÍVEL)
+// ==============================================================================
+function toggleMobileNav() {
+  const drawer = document.getElementById('mobileNavDrawer');
+  const btn = document.getElementById('mobileMenuBtn');
+  if (drawer && btn) {
+    const isOpen = drawer.classList.toggle('active');
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+}
