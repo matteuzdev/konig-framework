@@ -1,0 +1,25 @@
+name: Konig Reach Coliseum
+on:
+  push:
+    paths:
+      - "tools/konig-reach/**"
+      - ".github/workflows/konig-reach-coliseum.yml"
+  pull_request:
+    paths:
+      - "tools/konig-reach/**"
+      - ".github/workflows/konig-reach-coliseum.yml"
+jobs:
+  offline-red-team:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/konig-reach
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install locked-range dependencies and test extras
+        run: python -m pip install -e '.[test]'
+      - name: Run Coliseum offline fixtures
+        run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q
